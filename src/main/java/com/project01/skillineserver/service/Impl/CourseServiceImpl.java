@@ -99,4 +99,9 @@ public class CourseServiceImpl implements CourseService {
                 .toList();
         return courseRepository.findAllByIdIn(listIdCourse);
     }
+
+    @Override
+    public List<CourseEntity> getCourses() {
+        return courseRepository.findAll();
+    }
 }

@@ -34,6 +34,15 @@ public class CourseController {
                 .build();
     }
 
+    @GetMapping(value = "/all")
+    public ApiResponse<List<CourseEntity>> getCourses() {
+        return ApiResponse.<List<CourseEntity>>builder()
+                .code(200)
+                .message("Success")
+                .data(courseService.getCourses())
+                .build();
+    }
+
     @DeleteMapping(value = "/{ids}")
     public ApiResponse<?> deleteCourse(@PathVariable List<Long> ids) {
         courseService.delete(ids);

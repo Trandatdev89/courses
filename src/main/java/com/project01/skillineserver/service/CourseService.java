@@ -13,4 +13,5 @@ public interface CourseService {
     CourseEntity getCourseById(Long id);
     void purchaseCourse(List<Long> idCourse, UserEntity user);
     List<CourseEntity> getListCourseById(List<String> ids);
+    List<CourseEntity> getCourses();
 }
