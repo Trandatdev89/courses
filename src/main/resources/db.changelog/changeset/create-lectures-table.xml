@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="5" author="datmacay_v1">
+        <createTable tableName="lecture">
+            <column name="id" type="varchar(255)">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="title" type="varchar(255)"/>
+            <column name="duration" type="varchar(255)"/>
+            <column name="position" type="int"/>
+            <column name="course_id" type="bigint"/>
+            <column name="created_at" type="timestamp"/>
+            <column name="image" type="varchar(255)"/>
+            <column name="content_type" type="varchar(255)"/>
+            <column name="file_path" type="varchar(255)"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="lecture"
+                baseColumnNames="course_id"
+                referencedTableName="courses"
+                referencedColumnNames="id"
+                constraintName="fk_courses_lecture"/>
+
+    </changeSet>
+
+</databaseChangeLog>

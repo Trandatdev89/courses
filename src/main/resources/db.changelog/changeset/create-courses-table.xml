@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="2" author="datmacay_v1">
+        <createTable tableName="courses">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="title" type="varchar(255)"/>
+            <column name="description" type="varchar(255)"/>
+            <column name="level" type="varchar(255)"/>
+            <column name="price" type="DECIMAL(10,0)"/>
+            <column name="discount_price" type="varchar(255)"/>
+            <column name="thumbnail_url" type="varchar(255)"/>
+            <column name="status" type="TINYINT(1)"/>
+            <column name="category_id" type="bigint"/>
+            <column name="created_at" type="timestamp"/>
+            <column name="updated_at" type="timestamp"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="courses"
+                baseColumnNames="category_id"
+                referencedTableName="category"
+                referencedColumnNames="id"
+                constraintName="fk_category_courses"/>
+
+    </changeSet>
+
+</databaseChangeLog>

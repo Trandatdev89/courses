@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="11" author="datmacay_v1">
+        <createTable tableName="course_progress">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="enrollment_id" type="bigint"/>
+            <column name="lecture_id" type="varchar(225)"/>
+            <column name="is_completed" type="TINYINT(1)"/>
+            <column name="completed_at" type="timestamp"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="course_progress"
+                baseColumnNames="enrollment_id"
+                referencedTableName="enrollment"
+                referencedColumnNames="id"
+                constraintName="fk_enrollment_course_progress"/>
+
+        <addForeignKeyConstraint
+                baseTableName="course_progress"
+                baseColumnNames="lecture_id"
+                referencedTableName="lecture"
+                referencedColumnNames="id"
+                constraintName="fk_lecture_course_progress"/>
+
+    </changeSet>
+</databaseChangeLog>

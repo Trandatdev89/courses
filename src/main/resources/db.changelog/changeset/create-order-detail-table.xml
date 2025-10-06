@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="8" author="datmacay_v1">
+        <createTable tableName="order_detail">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="order_id" type="bigint"/>
+            <column name="course_id" type="bigint"/>
+            <column name="price" type="decimal"/>
+            <column name="quantity" type="bigint"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="order_detail"
+                baseColumnNames="order_id"
+                referencedTableName="orders"
+                referencedColumnNames="id"
+                constraintName="fk_orders_order_detail"/>
+
+        <addForeignKeyConstraint
+                baseTableName="order_detail"
+                baseColumnNames="course_id"
+                referencedTableName="courses"
+                referencedColumnNames="id"
+                constraintName="fk_courses_order_detail"/>
+
+    </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <include file="db.changelog/changeset/create-role-table.xml"/>
+    <include file="db.changelog/changeset/create-user-table.xml"/>
+    <include file="db.changelog/changeset/create-category-table.xml"/>
+    <include file="db.changelog/changeset/create-courses-table.xml"/>
+    <include file="db.changelog/changeset/create-enrollments-table.xml"/>
+    <include file="db.changelog/changeset/create-lectures-table.xml"/>
+    <include file="db.changelog/changeset/create-orders-table.xml"/>
+    <include file="db.changelog/changeset/create-order-detail-table.xml"/>
+    <include file="db.changelog/changeset/create-payments-table.xml"/>
+    <include file="db.changelog/changeset/create-course-progress-table.xml"/>
+    <include file="db.changelog/changeset/create-reviews-table.xml"/>
+    <include file="db.changelog/changeset/insert/insert-role-table.xml"/>
+    <include file="db.changelog/changeset/insert/insert-user-table.xml"/>
+
+</databaseChangeLog>
