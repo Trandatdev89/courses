@@ -30,6 +30,7 @@ public class LectureEntity{
     private String contentType;
     @Column(name = "file_path",nullable = false)
     private String filePath;
+
     @CreatedDate
     @Column(name = "created_at")
     private Instant createAt;

@@ -1,6 +1,7 @@
 package com.project01.skillineserver.controller;
 
 import com.project01.skillineserver.dto.ApiResponse;
+import com.project01.skillineserver.dto.reponse.LectureResponse;
 import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.request.LectureReq;
 import com.project01.skillineserver.entity.LectureEntity;
@@ -98,12 +99,12 @@ public class LectureController {
     }
 
     @GetMapping
-    public ApiResponse<PageResponse<LectureEntity>> listLecture(@RequestParam(defaultValue = "0") int page,
+    public ApiResponse<PageResponse<LectureResponse>> listLecture(@RequestParam(defaultValue = "0") int page,
                                                                 @RequestParam(defaultValue = "10") int size,
                                                                 @RequestParam(required = false) String sort,
                                                                 @RequestParam(required = false) String keyword,
                                                                 @RequestParam Long courseId) {
-        return ApiResponse.<PageResponse<LectureEntity>>builder()
+        return ApiResponse.<PageResponse<LectureResponse>>builder()
                 .data(lectureService.getListLecture(page,size,sort,keyword,courseId))
                 .message("success!")
                 .code(200)

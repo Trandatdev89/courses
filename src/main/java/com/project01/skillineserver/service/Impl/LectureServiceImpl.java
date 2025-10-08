@@ -1,6 +1,7 @@
 package com.project01.skillineserver.service.Impl;
 
 import com.project01.skillineserver.constants.AppConstants;
+import com.project01.skillineserver.dto.reponse.LectureResponse;
 import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.request.LectureReq;
 import com.project01.skillineserver.entity.CourseEntity;
@@ -9,6 +10,7 @@ import com.project01.skillineserver.entity.OrderEntity;
 import com.project01.skillineserver.enums.ErrorCode;
 import com.project01.skillineserver.enums.SortField;
 import com.project01.skillineserver.excepion.CustomException.AppException;
+import com.project01.skillineserver.mapper.LectureMapper;
 import com.project01.skillineserver.repository.LectureRepository;
 import com.project01.skillineserver.service.FileService;
 import com.project01.skillineserver.service.LectureService;
@@ -32,6 +34,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -42,6 +45,7 @@ public class LectureServiceImpl implements LectureService {
     private final LectureRepository lectureRepository;
     private final UploadUtil uploadUtil;
     private final FileService fileService;
+    private final LectureMapper lectureMapper;
 
     @Override
     public LectureEntity save(LectureReq lectureReq) throws IOException, InterruptedException {
@@ -63,6 +67,8 @@ public class LectureServiceImpl implements LectureService {
         lectureEntity.setTitle(lectureReq.title());
         lectureEntity.setPosition(lectureReq.position());
         lectureEntity.setCourseId(lectureReq.courseId());
+        lectureEntity.setUpdateAt(Instant.now());
+        lectureEntity.setCreateAt(Instant.now());
 
         LectureEntity lectureNeedSave = lectureRepository.save(lectureEntity);
 
@@ -170,7 +176,7 @@ public class LectureServiceImpl implements LectureService {
     }
 
     @Override
-    public PageResponse<LectureEntity> getListLecture(int page, int size, String sort, String keyword,Long courseId) {
+    public PageResponse<LectureResponse> getListLecture(int page, int size, String sort, String keyword,Long courseId) {
         Sort sortField =  Sort.by(Sort.Direction.DESC,"createAt");
         if(sort!=null && keyword!=null){
             sortField = SortField.ASC.getValue().equalsIgnoreCase(sort) ? Sort.by(Sort.Direction.ASC,keyword) : Sort.by(Sort.Direction.DESC,keyword);
@@ -179,8 +185,10 @@ public class LectureServiceImpl implements LectureService {
 
         Page<LectureEntity> orders = lectureRepository.findAllByCourseId(pageRequest,courseId);
 
-        return PageResponse.<LectureEntity>builder()
-                .list(orders.getContent())
+        List<LectureResponse> listLectureResponse = orders.getContent().stream().map(lectureMapper::toLectureResponse).toList();
+
+        return PageResponse.<LectureResponse>builder()
+                .list(listLectureResponse)
                 .page(page)
                 .size(size)
                 .totalElements(orders.getTotalElements())
