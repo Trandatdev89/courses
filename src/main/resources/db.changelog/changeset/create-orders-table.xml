@@ -13,6 +13,7 @@
             <column name="total_price" type="decimal"/>
             <column name="status" type="varchar(225)"/>
             <column name="created_at" type="timestamp"/>
+            <column name="quantity" type="bigint"/>
         </createTable>
 
         <addForeignKeyConstraint

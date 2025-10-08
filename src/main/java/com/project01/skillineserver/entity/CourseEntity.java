@@ -24,6 +24,7 @@ public class CourseEntity extends AbstractEntity<Long>{
     private String thumbnail_url;
     private boolean status;
     private BigDecimal price;
+    private Double rate;
     @Column(name = "discount_price")
     private String discountPrice;
 }

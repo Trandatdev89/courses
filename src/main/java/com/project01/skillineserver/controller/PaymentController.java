@@ -27,7 +27,7 @@ public class PaymentController {
     private final PaymentRepository paymentRepository;
     private final VNPayService vnPayService;
 
-    @GetMapping("/payment")
+    @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
     public VNPayResponse submitOrder(@RequestParam("orderId") int id,
                                      @RequestParam("amount") int orderTotal,

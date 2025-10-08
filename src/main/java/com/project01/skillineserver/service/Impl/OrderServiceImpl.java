@@ -94,9 +94,6 @@ public class OrderServiceImpl implements OrderService {
         }
         orderDetailRepository.saveAll(orderDetailEntities);
 
-        paymentService.createPayment(new PaymentReq(null, PaymentMethod.TIEN_MAT,order.getId(),PaymentStatus.PENDING));
-
-
         return order;
     }
 

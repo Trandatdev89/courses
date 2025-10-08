@@ -25,6 +25,7 @@ public class OrderEntity {
     private BigDecimal totalPrice;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+    private Long quantity;
     @Column(name = "created_at")
     private Instant createdAt;
 }

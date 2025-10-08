@@ -1,10 +1,13 @@
 package com.project01.skillineserver.service.Impl;
 
 import com.project01.skillineserver.constants.AppConstants;
+import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.request.LectureReq;
 import com.project01.skillineserver.entity.CourseEntity;
 import com.project01.skillineserver.entity.LectureEntity;
+import com.project01.skillineserver.entity.OrderEntity;
 import com.project01.skillineserver.enums.ErrorCode;
+import com.project01.skillineserver.enums.SortField;
 import com.project01.skillineserver.excepion.CustomException.AppException;
 import com.project01.skillineserver.repository.LectureRepository;
 import com.project01.skillineserver.service.FileService;
@@ -15,6 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -164,8 +170,22 @@ public class LectureServiceImpl implements LectureService {
     }
 
     @Override
-    public List<LectureEntity> getListLecture(Long courseId) {
-        return lectureRepository.findAllByCourseId(courseId);
+    public PageResponse<LectureEntity> getListLecture(int page, int size, String sort, String keyword,Long courseId) {
+        Sort sortField =  Sort.by(Sort.Direction.DESC,"createAt");
+        if(sort!=null && keyword!=null){
+            sortField = SortField.ASC.getValue().equalsIgnoreCase(sort) ? Sort.by(Sort.Direction.ASC,keyword) : Sort.by(Sort.Direction.DESC,keyword);
+        }
+        PageRequest pageRequest  = PageRequest.of(page-1, size,sortField);
+
+        Page<LectureEntity> orders = lectureRepository.findAllByCourseId(pageRequest,courseId);
+
+        return PageResponse.<LectureEntity>builder()
+                .list(orders.getContent())
+                .page(page)
+                .size(size)
+                .totalElements(orders.getTotalElements())
+                .totalPages(orders.getTotalPages())
+                .build();
     }
 
 }

@@ -1,11 +1,10 @@
 package com.project01.skillineserver.service.Impl;
 
+import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.request.CourseReq;
-import com.project01.skillineserver.entity.CategoryEntity;
-import com.project01.skillineserver.entity.CourseEntity;
-import com.project01.skillineserver.entity.EnrollmentEntity;
-import com.project01.skillineserver.entity.UserEntity;
+import com.project01.skillineserver.entity.*;
 import com.project01.skillineserver.enums.ErrorCode;
+import com.project01.skillineserver.enums.SortField;
 import com.project01.skillineserver.excepion.CustomException.AppException;
 import com.project01.skillineserver.repository.CourseRepository;
 import com.project01.skillineserver.repository.EnrollmentRepository;
@@ -13,6 +12,9 @@ import com.project01.skillineserver.repository.UserRepository;
 import com.project01.skillineserver.service.CourseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,15 +95,31 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<CourseEntity> getListCourseById(List<String> ids) {
-        List<Long> listIdCourse = ids.stream()
-                .map(Long::parseLong)
-                .toList();
-        return courseRepository.findAllByIdIn(listIdCourse);
+    public List<CourseEntity> getListCourseById(List<Long> ids) {
+        return courseRepository.findAllByIdIn(ids);
     }
 
     @Override
-    public List<CourseEntity> getCourses() {
+    public List<CourseEntity> getCourseNotPagination() {
         return courseRepository.findAll();
+    }
+
+    @Override
+    public PageResponse<CourseEntity> getCourses(int page, int size, String sort, String keyword) {
+        Sort sortField =  Sort.by(Sort.Direction.DESC,"createdAt");
+        if(sort!=null && keyword!=null){
+            sortField = SortField.ASC.getValue().equalsIgnoreCase(sort) ? Sort.by(Sort.Direction.ASC,keyword) : Sort.by(Sort.Direction.DESC,keyword);
+        }
+        PageRequest pageRequest  = PageRequest.of(page-1, size,sortField);
+
+        Page<CourseEntity> orders = courseRepository.findAll(pageRequest);
+
+        return PageResponse.<CourseEntity>builder()
+                .list(orders.getContent())
+                .page(page)
+                .size(size)
+                .totalElements(orders.getTotalElements())
+                .totalPages(orders.getTotalPages())
+                .build();
     }
 }

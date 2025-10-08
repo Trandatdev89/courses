@@ -57,8 +57,8 @@ public class SecurityUtil {
     @Value("${jwt.expirationRefresh}")
     private long expirationRefresh;
 
-    @Autowired
-    private RedisService redisService;
+//    @Autowired
+//    private RedisService redisService;
 
     public String generateToken(UserEntity user, Authentication authentication, String tokenType){
         JwsHeader jwsHeader = JwsHeader.with(MacAlgorithm.HS256).build();
@@ -99,9 +99,9 @@ public class SecurityUtil {
             throw new AppException(ErrorCode.TOKEN_INVALID);
         }
 
-        if(redisService.existsKey(tokenId)){
-            throw new AppException(ErrorCode.ACCOUNT_IS_LOGOUT);
-        }
+//        if(redisService.existsKey(tokenId)){
+//            throw new AppException(ErrorCode.ACCOUNT_IS_LOGOUT);
+//        }
         return signedJWT;
     }
 

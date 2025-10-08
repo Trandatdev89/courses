@@ -1,6 +1,7 @@
 package com.project01.skillineserver.controller;
 
 import com.project01.skillineserver.dto.ApiResponse;
+import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.request.CourseReq;
 import com.project01.skillineserver.entity.CourseEntity;
 import com.project01.skillineserver.service.CourseService;
@@ -34,12 +35,24 @@ public class CourseController {
                 .build();
     }
 
-    @GetMapping(value = "/all")
-    public ApiResponse<List<CourseEntity>> getCourses() {
+    @GetMapping(value = "/not-pagi")
+    public ApiResponse<List<CourseEntity>> getCourseNotPagination() {
         return ApiResponse.<List<CourseEntity>>builder()
                 .code(200)
                 .message("Success")
-                .data(courseService.getCourses())
+                .data(courseService.getCourseNotPagination())
+                .build();
+    }
+
+    @GetMapping(value = "/all")
+    public ApiResponse<PageResponse<CourseEntity>> getCourses(@RequestParam(defaultValue = "0") int page,
+                                                              @RequestParam(defaultValue = "1000") int size,
+                                                              @RequestParam(required = false) String sort,
+                                                              @RequestParam(required = false) String keyword) {
+        return ApiResponse.<PageResponse<CourseEntity>>builder()
+                .code(200)
+                .message("Success")
+                .data(courseService.getCourses(page,size,sort,keyword))
                 .build();
     }
 
@@ -53,7 +66,7 @@ public class CourseController {
     }
 
     @GetMapping(value = "/list/{ids}")
-    public ApiResponse<?> getListCourseById(@PathVariable List<String> ids) {
+    public ApiResponse<?> getListCourseById(@PathVariable List<Long> ids) {
         return ApiResponse.builder()
                 .code(200)
                 .data(courseService.getListCourseById(ids))

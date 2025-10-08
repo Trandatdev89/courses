@@ -11,7 +11,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "course_progree")
+@Table(name = "course_progress")
 public class CourseProgressEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,7 +19,7 @@ public class CourseProgressEntity {
     @Column(name = "enrolment_id")
     private Long enrolmentId;
     @Column(name = "lecture_id")
-    private Long lectureId;
+    private String lectureId;
     @Column(name = "is_completed")
     private boolean isCompleted;
     @Column(name = "completed_at")

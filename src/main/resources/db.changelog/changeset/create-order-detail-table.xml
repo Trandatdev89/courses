@@ -12,7 +12,6 @@
             <column name="order_id" type="bigint"/>
             <column name="course_id" type="bigint"/>
             <column name="price" type="decimal"/>
-            <column name="quantity" type="bigint"/>
         </createTable>
 
         <addForeignKeyConstraint

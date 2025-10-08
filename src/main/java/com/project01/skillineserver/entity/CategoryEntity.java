@@ -18,4 +18,5 @@ public class CategoryEntity {
 
     private String name;
 
+    private String path;
 }
