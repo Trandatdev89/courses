@@ -51,7 +51,8 @@ import java.util.stream.Collectors;
 @EnableMethodSecurity
 public class WebSecurityConfig {
 
-    private static final String[] PUBLIC_ENTRYPOINT = {"/auth/**", "/file/**", "/chat/**", "/vnpay-payment/**","/api/lecture/**"};
+    private static final String[] PUBLIC_ENTRYPOINT = {"/auth/**", "/file/**", "/chat/**",
+            "/vnpay-payment/**","/api/lecture/**","/api/course/**"};
 
     @Lazy
     @Autowired

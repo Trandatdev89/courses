@@ -24,7 +24,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     @Override
-    public boolean checkUserEnrollment(Long courseId) {
+    public Boolean checkUserEnrollment(Long courseId) {
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
         return enrollmentRepository.isUserEnrolledInCourse(userId,courseId) > 0;
     }

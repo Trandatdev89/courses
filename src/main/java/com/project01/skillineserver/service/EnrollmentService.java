@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface EnrollmentService {
     List<CourseProjection> getListCourseUserBuy();
-    boolean checkUserEnrollment(Long courseId);
+    Boolean checkUserEnrollment(Long courseId);
 }

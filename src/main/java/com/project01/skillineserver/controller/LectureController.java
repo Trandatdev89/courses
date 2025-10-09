@@ -110,4 +110,13 @@ public class LectureController {
                 .code(200)
                 .build();
     }
+
+    @GetMapping(value = "/not-pagi")
+    public ApiResponse<List<LectureResponse>> listLecture(@RequestParam Long courseId) {
+        return ApiResponse.<List<LectureResponse>>builder()
+                .data(lectureService.getListLectureNotPagi(courseId))
+                .message("success!")
+                .code(200)
+                .build();
+    }
 }

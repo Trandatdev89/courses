@@ -30,7 +30,11 @@ public class EnrollmentController {
     }
 
     @GetMapping(value = "/check")
-    public boolean checkUserEnrollment(@RequestParam Long courseId){
-        return enrollmentService.checkUserEnrollment(courseId);
+    public ApiResponse<Boolean> checkUserEnrollment(@RequestParam Long courseId){
+        return ApiResponse.<Boolean>builder()
+                .code(200)
+                .message("success")
+                .data(enrollmentService.checkUserEnrollment(courseId))
+                .build();
     }
 }

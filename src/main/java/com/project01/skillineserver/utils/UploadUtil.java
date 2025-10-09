@@ -115,7 +115,7 @@ public class UploadUtil {
 
     }
 
-    private Path createPathFile(MultipartFile lectureFile, FileType fileType) throws IOException {
+    public Path createPathFile(MultipartFile lectureFile, FileType fileType) throws IOException {
 
         String originFileName = lectureFile.getOriginalFilename();
         Path folderUpload = null;
