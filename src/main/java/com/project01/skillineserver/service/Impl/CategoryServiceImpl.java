@@ -1,5 +1,6 @@
 package com.project01.skillineserver.service.Impl;
 
+import com.project01.skillineserver.dto.reponse.CategoryResponse;
 import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.request.CategoryReq;
 import com.project01.skillineserver.entity.CategoryEntity;
@@ -8,6 +9,7 @@ import com.project01.skillineserver.enums.ErrorCode;
 import com.project01.skillineserver.enums.FileType;
 import com.project01.skillineserver.enums.SortField;
 import com.project01.skillineserver.excepion.CustomException.AppException;
+import com.project01.skillineserver.mapper.CategoryMapper;
 import com.project01.skillineserver.repository.CategoryRepository;
 import com.project01.skillineserver.service.CategoryService;
 import com.project01.skillineserver.utils.UploadUtil;
@@ -30,15 +32,16 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final UploadUtil uploadUtil;
+    private final CategoryMapper categoryMapper;
 
     @Override
     public void save(CategoryReq category) throws IOException {
         CategoryEntity categoryInDB;
 
-        if (category.id() != null) {
+        if (category.id() != null) { //updatr
             categoryInDB = categoryRepository.findById(category.id())
                     .orElseGet(CategoryEntity::new);
-        } else {
+        } else {  //create
             categoryInDB = new CategoryEntity();
         }
 
@@ -56,12 +59,12 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryEntity> getCategories() {
-        return categoryRepository.findAll();
+    public List<CategoryResponse> getCategories() {
+        return categoryRepository.findAll().stream().map(categoryMapper::toLectureResponse).toList();
     }
 
     @Override
-    public PageResponse<CategoryEntity> getCategoryPagination(int page, int size, String sort, String keyword) {
+    public PageResponse<CategoryResponse> getCategoryPagination(int page, int size, String sort, String keyword) {
         Sort sortField =  Sort.by(Sort.Direction.DESC,"createdAt");
 
         if(sort!=null && keyword!=null){
@@ -74,8 +77,10 @@ public class CategoryServiceImpl implements CategoryService {
 
         Page<CategoryEntity> orders = categoryRepository.findAll(pageRequest);
 
-        return PageResponse.<CategoryEntity>builder()
-                .list(orders.getContent())
+        List<CategoryResponse> list = orders.getContent().stream().map(categoryMapper::toLectureResponse).toList();
+
+        return PageResponse.<CategoryResponse>builder()
+                .list(list)
                 .page(page)
                 .size(size)
                 .totalElements(orders.getTotalElements())

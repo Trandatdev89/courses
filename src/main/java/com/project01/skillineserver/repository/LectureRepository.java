@@ -19,4 +19,7 @@ public interface LectureRepository extends JpaRepository<LectureEntity,String> {
             "LEFT JOIN CategoryEntity cat on co.categoryId=cat.id " +
             "WHERE co.id = :courseId")
     CourseProjection getCourseWithCategory(@Param("courseId") Long courseId);
+
+
+    List<LectureEntity> findAllByCourseId(Long courseId);
 }

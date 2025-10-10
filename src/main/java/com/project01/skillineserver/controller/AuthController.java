@@ -34,6 +34,7 @@ public class AuthController {
     @PostMapping(value = "/introspect-token")
     public ApiResponse<Boolean> introspect(@RequestBody TokenRequest tokenRequest) {
         TokenType tokenType = tokenRequest.getTokenType();
+        log.info("type token: {}",tokenType);
         return ApiResponse.<Boolean>builder()
                 .code(200)
                 .message("Token Valid!")
@@ -60,7 +61,7 @@ public class AuthController {
     }
 
     @GetMapping(value = "/verify")
-    public ApiResponse<?> verifyAccount(String token,Long userId){
+    public ApiResponse<?> verifyAccount(@RequestParam(name = "token") String token,@RequestParam(name = "userId") Long userId){
         authService.verifyAccount(token,userId);
         return ApiResponse.builder()
                 .message("Xác thực tài khoản thành công!")

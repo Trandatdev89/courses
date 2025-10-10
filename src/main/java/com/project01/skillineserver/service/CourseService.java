@@ -1,5 +1,6 @@
 package com.project01.skillineserver.service;
 
+import com.project01.skillineserver.dto.reponse.CourseResponse;
 import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.request.CourseReq;
 import com.project01.skillineserver.entity.CourseEntity;
@@ -15,5 +16,5 @@ public interface CourseService {
     void purchaseCourse(List<Long> idCourse, UserEntity user);
     List<CourseEntity> getListCourseById(List<Long> ids);
     List<CourseEntity> getCourseNotPagination();
-    PageResponse<CourseEntity> getCourses(int page, int size, String sort, String keyword);
+    PageResponse<CourseResponse> getCourses(int page, int size, String sort, String keyword);
 }

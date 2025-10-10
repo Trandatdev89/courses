@@ -1,6 +1,7 @@
 package com.project01.skillineserver.controller;
 
 import com.project01.skillineserver.dto.ApiResponse;
+import com.project01.skillineserver.dto.reponse.CourseResponse;
 import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.request.CourseReq;
 import com.project01.skillineserver.entity.CourseEntity;
@@ -45,11 +46,11 @@ public class CourseController {
     }
 
     @GetMapping(value = "/all")
-    public ApiResponse<PageResponse<CourseEntity>> getCourses(@RequestParam(defaultValue = "0") int page,
+    public ApiResponse<PageResponse<CourseResponse>> getCourses(@RequestParam(defaultValue = "0") int page,
                                                               @RequestParam(defaultValue = "1000") int size,
                                                               @RequestParam(required = false) String sort,
                                                               @RequestParam(required = false) String keyword) {
-        return ApiResponse.<PageResponse<CourseEntity>>builder()
+        return ApiResponse.<PageResponse<CourseResponse>>builder()
                 .code(200)
                 .message("Success")
                 .data(courseService.getCourses(page,size,sort,keyword))

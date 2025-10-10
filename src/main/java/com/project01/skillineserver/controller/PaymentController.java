@@ -21,13 +21,12 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/payment")
 public class PaymentController {
 
     private final PaymentRepository paymentRepository;
     private final VNPayService vnPayService;
 
-    @GetMapping
+    @GetMapping(value = "/api/payment")
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
     public VNPayResponse submitOrder(@RequestParam("orderId") int id,
                                      @RequestParam("amount") int orderTotal,

@@ -1,11 +1,13 @@
 package com.project01.skillineserver.service.Impl;
 
+import com.project01.skillineserver.dto.reponse.CourseResponse;
 import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.request.CourseReq;
 import com.project01.skillineserver.entity.*;
 import com.project01.skillineserver.enums.ErrorCode;
 import com.project01.skillineserver.enums.SortField;
 import com.project01.skillineserver.excepion.CustomException.AppException;
+import com.project01.skillineserver.mapper.CourseMapper;
 import com.project01.skillineserver.repository.CourseRepository;
 import com.project01.skillineserver.repository.EnrollmentRepository;
 import com.project01.skillineserver.repository.UserRepository;
@@ -31,6 +33,7 @@ public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepository;
     private final EnrollmentRepository enrollmentRepository;
+    private final CourseMapper courseMapper;
 
     @Override
     public List<CourseEntity> getAllByCategoryId(Long categoryId) {
@@ -105,7 +108,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public PageResponse<CourseEntity> getCourses(int page, int size, String sort, String keyword) {
+    public PageResponse<CourseResponse> getCourses(int page, int size, String sort, String keyword) {
         Sort sortField =  Sort.by(Sort.Direction.DESC,"createdAt");
         if(sort!=null && keyword!=null){
             sortField = SortField.ASC.getValue().equalsIgnoreCase(sort) ? Sort.by(Sort.Direction.ASC,keyword) : Sort.by(Sort.Direction.DESC,keyword);
@@ -114,8 +117,10 @@ public class CourseServiceImpl implements CourseService {
 
         Page<CourseEntity> orders = courseRepository.findAll(pageRequest);
 
-        return PageResponse.<CourseEntity>builder()
-                .list(orders.getContent())
+        List<CourseResponse> courseResponseList = orders.getContent().stream().map(courseMapper::toLectureResponse).toList();
+
+        return PageResponse.<CourseResponse>builder()
+                .list(courseResponseList)
                 .page(page)
                 .size(size)
                 .totalElements(orders.getTotalElements())

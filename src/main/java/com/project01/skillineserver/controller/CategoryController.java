@@ -1,6 +1,7 @@
 package com.project01.skillineserver.controller;
 
 import com.project01.skillineserver.dto.ApiResponse;
+import com.project01.skillineserver.dto.reponse.CategoryResponse;
 import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.request.CategoryReq;
 import com.project01.skillineserver.entity.CategoryEntity;
@@ -37,8 +38,8 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ApiResponse<List<CategoryEntity>> getCategories(){
-        return ApiResponse.<List<CategoryEntity>>builder()
+    public ApiResponse<List<CategoryResponse>> getCategories(){
+        return ApiResponse.<List<CategoryResponse>>builder()
                 .message("Save Category")
                 .data(categoryService.getCategories())
                 .code(200)
@@ -46,11 +47,11 @@ public class CategoryController {
     }
 
     @GetMapping(value = "/pagination")
-    public ApiResponse<PageResponse<CategoryEntity>> getCategoryPagination(@RequestParam(defaultValue = "0") int page,
-                                                                           @RequestParam(defaultValue = "10") int size,
-                                                                           @RequestParam(required = false) String sort,
-                                                                           @RequestParam(required = false) String keyword){
-        return ApiResponse.<PageResponse<CategoryEntity>>builder()
+    public ApiResponse<PageResponse<CategoryResponse>> getCategoryPagination(@RequestParam(defaultValue = "0") int page,
+                                                                             @RequestParam(defaultValue = "10") int size,
+                                                                             @RequestParam(required = false) String sort,
+                                                                             @RequestParam(required = false) String keyword){
+        return ApiResponse.<PageResponse<CategoryResponse>>builder()
                 .message("Save Category")
                 .data(categoryService.getCategoryPagination(page,size,sort,keyword))
                 .code(200)

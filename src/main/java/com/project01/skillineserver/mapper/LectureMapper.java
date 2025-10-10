@@ -7,6 +7,7 @@ import com.project01.skillineserver.repository.LectureRepository;
 import com.project01.skillineserver.utils.DateUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,16 +16,15 @@ public class LectureMapper {
 
     private final DateUtil dateUtil;
     private final LectureRepository lectureRepository;
-    private final HttpServletRequest request;
+
+    @Value("${domain.server}")
+    private String DOMAIN_SERVER;
 
     public LectureResponse toLectureResponse(LectureEntity lectureEntity) {
 
-        String domain = request.getScheme() + "://" + request.getServerName() + ":"
-                + request.getServerPort();
-
         CourseProjection courseProjection = lectureRepository.getCourseWithCategory(lectureEntity.getCourseId());
 
-        String urlThumbnail = domain+lectureEntity.getImage();
+        String urlThumbnail = DOMAIN_SERVER+lectureEntity.getImage();
 
         String duration = lectureEntity.getDuration()+" hours";
 

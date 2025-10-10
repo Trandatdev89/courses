@@ -6,6 +6,7 @@ import com.project01.skillineserver.dto.reponse.AuthResponse;
 import com.project01.skillineserver.dto.request.LoginRequest;
 import com.project01.skillineserver.dto.request.RegisterRequest;
 import com.project01.skillineserver.dto.request.TokenRequest;
+import com.project01.skillineserver.dto.request.VerifyAccountRequest;
 import com.project01.skillineserver.entity.RoleEntity;
 import com.project01.skillineserver.entity.UserEntity;
 import com.project01.skillineserver.enums.ErrorCode;
@@ -30,7 +31,10 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -72,6 +76,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public boolean introspect(TokenRequest tokenRequest, TokenType tokenType) {
+        tokenType = TokenType.ACCESS_TOKEN;
         boolean check = false;
         try {
             securityUtil.verifyToken(tokenType.equals(TokenType.ACCESS_TOKEN)
@@ -104,38 +109,36 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void createAccount(RegisterRequest registerDTO) {
-//        if(userRepository.existsByUsername(registerDTO.getUsername())) {
-//            throw new AppException(ErrorCode.USER_EXITSED);
-//        }
-//        UserEntity user = UserEntity.builder()
-//                .username(registerDTO.getUsername())
-//                .password(passwordEncoder.encode(registerDTO.getPassword()))
-//                .address(registerDTO.getAddress())
-//                .phone(registerDTO.getPhone())
-//                .fullname(registerDTO.getFullname())
-//                .email(registerDTO.getEmail())
-//                .authenticate(false)
-//                .build();
-//        UserEntity userCreated = userRepository.save(user);
-//
-//        userRoleRepository.save(UserRoleEntity.builder()
-//                .role_id(2l)
-//                .user_id(userCreated.getId())
-//                .build());
-//
-//        emailService.verifyAccount(VerifyAccountRequest.builder()
-//                .token(UUID.randomUUID().toString())
-//                .linkUrl(verifyAccountUrl)
-//                .userId(userCreated.getId())
-//                .email(userCreated.getEmail())
-//                .build());
+        if(userRepository.existsByUsername(registerDTO.getUsername())) {
+            throw new AppException(ErrorCode.USER_EXITSED);
+        }
+        UserEntity user = UserEntity.builder()
+                .username(registerDTO.getUsername())
+                .password(passwordEncoder.encode(registerDTO.getPassword()))
+                .address(registerDTO.getAddress())
+                .phone(registerDTO.getPhone())
+                .fullname(registerDTO.getFullname())
+                .email(registerDTO.getEmail())
+                .authenticate(false)
+                .role_id(2l)
+                .build();
+        UserEntity userCreated = userRepository.save(user);
+
+
+
+        emailService.verifyAccount(VerifyAccountRequest.builder()
+                .token(UUID.randomUUID().toString())
+                .linkUrl(verifyAccountUrl)
+                .userId(userCreated.getId())
+                .email(userCreated.getEmail())
+                .build());
     }
 
 
     @Override
     public void verifyAccount(String token, Long userId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOTFOUND));
-        if (user.getCreateAt().plusMillis(10).isBefore(Instant.now())) {
+        if (user.getCreateAt().plus(10, ChronoUnit.MINUTES).isBefore(Instant.now())) {
             userRepository.deleteById(userId);
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }

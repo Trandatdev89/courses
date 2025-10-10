@@ -198,7 +198,7 @@ public class LectureServiceImpl implements LectureService {
 
     @Override
     public List<LectureResponse> getListLectureNotPagi(Long courseId) {
-        List<LectureEntity> lectureEntityList  = lectureRepository.findAll();
+        List<LectureEntity> lectureEntityList  = lectureRepository.findAllByCourseId(courseId);
         return lectureEntityList.stream().map(lectureMapper::toLectureResponse).toList();
     }
 

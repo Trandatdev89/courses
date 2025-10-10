@@ -26,6 +26,6 @@ public abstract class AbstractEntity<T extends Serializable> implements Serializ
     private Instant createAt;
 
     @LastModifiedDate
-    @Column(name = "update_at")
+    @Column(name = "updated_at")
     private Instant updateAt;
 }

@@ -146,7 +146,7 @@ public class UploadUtil {
 
         Files.copy(lectureFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        return filePath;
+        return Paths.get(String.valueOf(folderUpload),fileName);
     }
 
 }
