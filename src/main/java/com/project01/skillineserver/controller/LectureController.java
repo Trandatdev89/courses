@@ -13,6 +13,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -32,6 +33,7 @@ public class LectureController {
     private final LectureService lectureService;
 
     @PostMapping(value = "/save")
+    @PreAuthorize("@authorizationService.isAdmin()")
     public ApiResponse<LectureEntity> save(@ModelAttribute LectureReq lectureReq) throws IOException, InterruptedException {
         return ApiResponse.<LectureEntity>builder()
                 .code(200)
@@ -41,6 +43,7 @@ public class LectureController {
     }
 
     @GetMapping(value = "/stream/{id}")
+    @PreAuthorize("@authorizationService.isCanAccessApi()")
     public ResponseEntity<Resource> streamLecture(@PathVariable String id) throws IOException {
         return lectureService.streamBasicVideo(id);
     }
@@ -52,6 +55,7 @@ public class LectureController {
     }
 
     @GetMapping("/stream/{videoId}/master.m3u8")
+    @PreAuthorize("@authorizationService.isCanAccessApi()")
     public ResponseEntity<Resource> streamMasterPlaylist(@PathVariable String videoId) {
         try {
             Path playlistPath = Paths.get(HLS_DIR, videoId, "master.m3u8");
@@ -75,6 +79,7 @@ public class LectureController {
 
     // Stream video segments (.ts files)
     @GetMapping("/stream/{videoId}/{segmentName:.+\\.ts}")
+    @PreAuthorize("@authorizationService.isCanAccessApi()")
     public ResponseEntity<Resource> streamSegment(
             @PathVariable String videoId,
             @PathVariable String segmentName) {

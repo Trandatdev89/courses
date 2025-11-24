@@ -27,7 +27,7 @@ public class PaymentController {
     private final VNPayService vnPayService;
 
     @GetMapping(value = "/api/payment")
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("@authorizationService.isUserNormal()")
     public VNPayResponse submitOrder(@RequestParam("orderId") int id,
                                      @RequestParam("amount") int orderTotal,
                                      @RequestParam("orderInfo") String orderInfo,
@@ -42,6 +42,7 @@ public class PaymentController {
     }
 
     @GetMapping("/vnpay-payment/{id}")
+    @PreAuthorize("@authorizationService.isUserNormal()")
     public ResponseEntity<Void> createPayment(@PathVariable int id, @RequestParam Map<String,String> params){
 
         PaymentEntity paymentEntity = PaymentEntity.builder()

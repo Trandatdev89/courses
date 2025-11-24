@@ -13,7 +13,7 @@ import java.io.IOException;
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException{
-        ErrorCode errorCode=ErrorCode.UNAUTHOUCATED;
+        ErrorCode errorCode=ErrorCode.UNAUTHORIZATED;
         response.setStatus(errorCode.getCode());
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");

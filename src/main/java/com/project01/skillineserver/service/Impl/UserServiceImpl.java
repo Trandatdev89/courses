@@ -18,8 +18,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserEntity getMyInfo() {
         Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
-        UserEntity myInfo = userRepository.findById(userId).orElseThrow(()-> new AppException(ErrorCode.USER_NOTFOUND));
-        return myInfo;
+        return userRepository.findById(userId).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_FOUND));
     }
 
 

@@ -7,6 +7,7 @@ import com.project01.skillineserver.dto.request.CourseReq;
 import com.project01.skillineserver.entity.CourseEntity;
 import com.project01.skillineserver.service.CourseService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class CourseController {
     private final CourseService courseService;
 
     @PostMapping(value = "/save")
+    @PreAuthorize("@authorizationService.isAdmin()")
     public ApiResponse<CourseEntity> saveCourse(@ModelAttribute CourseReq courseReq) {
         return ApiResponse.<CourseEntity>builder()
                 .code(200)
@@ -58,6 +60,7 @@ public class CourseController {
     }
 
     @DeleteMapping(value = "/{ids}")
+    @PreAuthorize("@authorizationService.isAdmin()")
     public ApiResponse<?> deleteCourse(@PathVariable List<Long> ids) {
         courseService.delete(ids);
         return ApiResponse.builder()

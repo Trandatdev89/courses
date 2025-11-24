@@ -5,6 +5,7 @@ import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jose.util.Base64;
 import com.nimbusds.jwt.SignedJWT;
+import com.project01.skillineserver.config.CustomUserDetail;
 import com.project01.skillineserver.entity.UserEntity;
 import com.project01.skillineserver.enums.ErrorCode;
 import com.project01.skillineserver.enums.TokenType;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -57,67 +59,66 @@ public class SecurityUtil {
     @Value("${jwt.expirationRefresh}")
     private long expirationRefresh;
 
-//    @Autowired
-//    private RedisService redisService;
+    @Autowired
+    private RedisService redisService;
 
-    public String generateToken(UserEntity user, Authentication authentication, String tokenType){
+    public String generateToken(CustomUserDetail customUserDetail, TokenType tokenType) {
         JwsHeader jwsHeader = JwsHeader.with(MacAlgorithm.HS256).build();
-        JwtClaimsSet jwtClaimsSet = null;
-        if(tokenType.equals(TokenType.ACCESS_TOKEN.toString())){
-            jwtClaimsSet = JwtClaimsSet.builder()
-                    .subject(user.getId().toString())
-                    .issuedAt(Instant.now())
-                    .expiresAt(Instant.now().plus(expirationAccess, ChronoUnit.SECONDS))
-                    .claim("scope", getAuthorities(authentication))
-                    .claim("loginAt", LocalDateTime.now().toString())
-                    .issuer(user.getUsername())
-                    .id(UUID.randomUUID().toString())
-                    .build();
-            String token = accessTokenEncoder.encode(JwtEncoderParameters.from(jwsHeader,jwtClaimsSet)).getTokenValue().toString();
-            return token;
-        }else{
-            jwtClaimsSet = JwtClaimsSet.builder()
-                    .subject(user.getId().toString())
-                    .issuedAt(Instant.now())
-                    .expiresAt(Instant.now().plus(expirationRefresh,ChronoUnit.SECONDS))
-                    .id(UUID.randomUUID().toString())
-                    .build();
-            String token = refreshTokenEncoder.encode(JwtEncoderParameters.from(jwsHeader,jwtClaimsSet)).getTokenValue().toString();
-            return token;
+
+
+        JwtClaimsSet jwtClaimsSet = JwtClaimsSet.builder()
+                .subject(customUserDetail.getUser().getId().toString())
+                .issuedAt(Instant.now())
+                .expiresAt(Instant.now().plus(tokenType.equals(TokenType.ACCESS_TOKEN) ? expirationAccess : expirationRefresh, ChronoUnit.SECONDS))
+                .claim("scope", getAuthorities(customUserDetail))
+                .claim("loginAt", LocalDateTime.now().toString())
+                .issuer(customUserDetail.getUsername())
+                .id(UUID.randomUUID().toString())
+                .build();
+
+        String tokenCreated = "";
+
+        if (tokenType.equals(TokenType.ACCESS_TOKEN)) {
+            tokenCreated = accessTokenEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet)).getTokenValue();
+        } else if (tokenType.equals(TokenType.REFRESH_TOKEN)) {
+            tokenCreated = refreshTokenEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet)).getTokenValue();
         }
+
+        return tokenCreated;
     }
 
 
-    public SignedJWT verifyToken(String token, String tokenType) throws ParseException, JOSEException {
+    public SignedJWT verifyToken(String token, TokenType tokenType) throws ParseException, JOSEException {
         SignedJWT signedJWT = SignedJWT.parse(token);
-        JWSVerifier verifier = new MACVerifier(tokenType.equals(TokenType.ACCESS_TOKEN.toString())
+        JWSVerifier verifier = new MACVerifier(tokenType.equals(TokenType.ACCESS_TOKEN)
                 ? secretKey() : secretRefreshKey());
         boolean verified = signedJWT.verify(verifier);
         String tokenId = signedJWT.getJWTClaimsSet().getJWTID();
 
-        if(!(verified && signedJWT.getJWTClaimsSet().getExpirationTime().after(new Date()))){
-            throw new AppException(ErrorCode.TOKEN_INVALID);
+        if (!(verified && signedJWT.getJWTClaimsSet().getExpirationTime().after(new Date()))) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
         }
 
-//        if(redisService.existsKey(tokenId)){
-//            throw new AppException(ErrorCode.ACCOUNT_IS_LOGOUT);
-//        }
+        if(redisService.existsKey(tokenId)){
+            throw new AppException(ErrorCode.ACCOUNT_IS_LOGOUT);
+        }
         return signedJWT;
     }
 
     public SecretKey secretKey() {
         byte[] bytes = Base64.from(secretKeyAccess).decode();
-        SecretKeySpec secretKeySpec = new SecretKeySpec(bytes, 0,bytes.length,MacAlgorithm.HS256.getName());
-        return secretKeySpec;
+        return new SecretKeySpec(bytes, 0, bytes.length, MacAlgorithm.HS256.getName());
     }
 
     public SecretKey secretRefreshKey() {
         byte[] bytes = Base64.from(secretKeyRefresh).decode();
-        SecretKeySpec secretKeySpec = new SecretKeySpec(bytes, 0,bytes.length,MacAlgorithm.HS256.getName());
-        return secretKeySpec;
+        return new SecretKeySpec(bytes, 0, bytes.length, MacAlgorithm.HS256.getName());
     }
 
-    public String getAuthorities(Authentication authentication) {
-        return authentication.getAuthorities().stream().map(item->item.getAuthority().toString()).collect(Collectors.joining(" "));
+    public String getAuthorities(CustomUserDetail customUserDetail) {
+        return customUserDetail.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(" "));
     }
 }

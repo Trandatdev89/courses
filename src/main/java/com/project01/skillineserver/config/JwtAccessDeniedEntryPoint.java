@@ -13,7 +13,7 @@ public class JwtAccessDeniedEntryPoint implements AccessDeniedHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, org.springframework.security.access.AccessDeniedException accessDeniedException) throws IOException {
-        ErrorCode errorCode=ErrorCode.UNAUTHOUZATED;
+        ErrorCode errorCode=ErrorCode.FOBIDEN;
         response.setStatus(errorCode.getCode());
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");

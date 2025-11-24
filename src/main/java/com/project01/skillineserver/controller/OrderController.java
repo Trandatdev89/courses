@@ -6,6 +6,7 @@ import com.project01.skillineserver.dto.request.OrderReq;
 import com.project01.skillineserver.entity.OrderEntity;
 import com.project01.skillineserver.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,6 +17,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @GetMapping
+    @PreAuthorize("@authorizationService.isAdmin()")
     public ApiResponse<PageResponse<OrderEntity>> getOrders(@RequestParam(defaultValue = "0") int page,
                                                @RequestParam(defaultValue = "10") int size,
                                                @RequestParam(required = false) String sort,
@@ -29,6 +31,7 @@ public class OrderController {
     }
 
     @GetMapping(value = "/{id}")
+    @PreAuthorize("@authorizationService.isCanAccessApi()")
     public ApiResponse<OrderEntity> getOrderById(@PathVariable Long id) {
 
         return ApiResponse.<OrderEntity>builder()
@@ -39,6 +42,7 @@ public class OrderController {
     }
 
     @PostMapping
+    @PreAuthorize("@authorizationService.isUserNormal()")
     public ApiResponse<OrderEntity> saveOrder(@RequestBody OrderReq orderReq) {
         return ApiResponse.<OrderEntity>builder()
                 .code(200)

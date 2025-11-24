@@ -2,12 +2,10 @@ package com.project01.skillineserver.config;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.project01.skillineserver.dto.request.TokenRequest;
-import com.project01.skillineserver.entity.RoleEntity;
 import com.project01.skillineserver.entity.UserEntity;
 import com.project01.skillineserver.enums.ErrorCode;
 import com.project01.skillineserver.enums.TokenType;
 import com.project01.skillineserver.excepion.CustomException.AppException;
-import com.project01.skillineserver.repository.RoleRepository;
 import com.project01.skillineserver.repository.UserRepository;
 import com.project01.skillineserver.service.AuthService;
 import com.project01.skillineserver.utils.SecurityUtil;
@@ -26,8 +24,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -43,23 +39,17 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class WebSecurityConfig {
 
     private static final String[] PUBLIC_ENTRYPOINT = {"/auth/**", "/file/**", "/chat/**",
-            "/vnpay-payment/**","/api/lecture/**","/api/course/**"};
+            "/vnpay-payment/**", "/api/lecture/**", "/api/course/**"};
 
     @Lazy
     @Autowired
     private SecurityUtil securityUtil;
-
-    @Autowired
-    private RoleRepository roleRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -72,10 +62,9 @@ public class WebSecurityConfig {
     public UserDetailsService userDetailsService() {
         return username -> {
             UserEntity userEntity = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOTFOUND));
-            RoleEntity role = roleRepository.findById(userEntity.getRole_id()).get();
-            List<GrantedAuthority> authorities =List.of(new SimpleGrantedAuthority(role.getName()));
-            return new CustomUserDetail(userEntity, authorities);
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+            return new CustomUserDetail(userEntity);
         };
     }
 
@@ -98,7 +87,7 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, CustomJwtAuthConverter customJwtAuthConverter) throws Exception {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(http -> http
@@ -114,18 +103,10 @@ public class WebSecurityConfig {
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                         .accessDeniedHandler(new JwtAccessDeniedEntryPoint())
                         .jwt(config -> config
+                                .jwtAuthenticationConverter(customJwtAuthConverter)
                                 .decoder(accessTokenDecoder())))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
-    }
-
-    @Bean
-    JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
-        return jwtAuthenticationConverter;
     }
 
     @Bean
@@ -148,7 +129,8 @@ public class WebSecurityConfig {
     @Bean
     @Qualifier("accessTokenDecoder")
     public JwtDecoder accessTokenDecoder() {
-        NimbusJwtDecoder nimbusJwtDecoder = NimbusJwtDecoder.withSecretKey(securityUtil.secretKey()).macAlgorithm(MacAlgorithm.HS256).build();
+        NimbusJwtDecoder nimbusJwtDecoder = NimbusJwtDecoder
+                .withSecretKey(securityUtil.secretKey()).macAlgorithm(MacAlgorithm.HS256).build();
         return token -> {
             try {
                 var responseToken = authService.introspect(TokenRequest.builder().accessToken(token).build(), TokenType.ACCESS_TOKEN);
@@ -173,6 +155,6 @@ public class WebSecurityConfig {
     @Qualifier("refreshTokenDecoder")
     public JwtDecoder refreshTokenDecoder() {
         NimbusJwtDecoder nimbusJwtDecoder = NimbusJwtDecoder.withSecretKey(securityUtil.secretRefreshKey()).macAlgorithm(MacAlgorithm.HS256).build();
-        return refreshToken -> nimbusJwtDecoder.decode(refreshToken);
+        return nimbusJwtDecoder::decode;
     }
 }

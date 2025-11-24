@@ -4,6 +4,7 @@ import com.project01.skillineserver.dto.ApiResponse;
 import com.project01.skillineserver.entity.UserEntity;
 import com.project01.skillineserver.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +17,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping(value = "/info")
+    @PreAuthorize("@authorizationService.isCanAccessApi()")
     public ApiResponse<UserEntity> getMyInfo() {
         return ApiResponse.<UserEntity>builder()
                 .message("get info success!")

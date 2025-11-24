@@ -1,5 +1,6 @@
 package com.project01.skillineserver.entity;
 
+import com.project01.skillineserver.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,6 +19,10 @@ public class UserEntity extends AbstractEntity <Long>{
     private String fullname;
     private String avatar;
     private String address;
-    private boolean authenticate;
-    private Long role_id;
+    @Enumerated(EnumType.STRING)
+    private Role role;
+    private boolean isLocked = true;
+    private boolean isDisable = false;
+    private boolean isAccountNonExpired = true;
+    private boolean isCredentialsNonExpired = true;
 }

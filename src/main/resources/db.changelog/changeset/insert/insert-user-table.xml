@@ -13,9 +13,14 @@
             <column name="phone" value="0123456789"/>
             <column name="address" value="Hanoi"/>
             <column name="fullname" value="Administrator"/>
-            <column name="authenticate" valueNumeric="1"/>
+            <column name="is_disable" valueNumeric="1"/>
+            <column name="is_account_non_expired" valueNumeric="1"/>
+            <column name="is_credentials_non_expired" valueNumeric="1"/>
+            <column name="is_locked" valueNumeric="1"/>
+            <column name="role" value="ADMIN"/>
             <column name="avatar" value="https://cdn-icons-png.freepik.com/512/2416/2416668.png"/>
-            <column name="role_id" valueNumeric="1"/>
+            <column name="created_at" valueComputed="NOW()"/>
+            <column name="updated_at" valueComputed="NOW()"/>
         </insert>
     </changeSet>
 

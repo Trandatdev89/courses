@@ -7,6 +7,7 @@ import com.project01.skillineserver.dto.request.CategoryReq;
 import com.project01.skillineserver.entity.CategoryEntity;
 import com.project01.skillineserver.service.CategoryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
+    @PreAuthorize("@authorizationService.isAdmin()")
     public ApiResponse<?> save(@ModelAttribute CategoryReq categoryReq) throws IOException {
         categoryService.save(categoryReq);
         return ApiResponse.builder()
@@ -29,6 +31,7 @@ public class CategoryController {
     }
 
     @DeleteMapping(value = "/{ids}")
+    @PreAuthorize("@authorizationService.isAdmin()")
     public ApiResponse<?> deleteCategory(@PathVariable List<Long> ids){
         categoryService.delete(ids);
         return ApiResponse.builder()

@@ -15,19 +15,15 @@
             <column name="phone" type="varchar(255)"/>
             <column name="address" type="varchar(255)"/>
             <column name="fullname" type="varchar(255)"/>
-            <column name="authenticate" type="TINYINT(1)"/>
             <column name="avatar" type="varchar(255)"/>
             <column name="created_at" type="timestamp"/>
             <column name="updated_at" type="timestamp"/>
-            <column name="role_id" type="bigint"/>
+            <column name="is_locked" type="TINYINT(1)"/>
+            <column name="is_disable" type="TINYINT(1)"/>
+            <column name="role" type="varchar(255)"/>
+            <column name="is_account_non_expired" type="TINYINT(1)"/>
+            <column name="is_credentials_non_expired" type="TINYINT(1)"/>
         </createTable>
-
-        <addForeignKeyConstraint
-                baseTableName="users"
-                baseColumnNames="role_id"
-                referencedTableName="role"
-                referencedColumnNames="id"
-                constraintName="fk_user_role"/>
 
     </changeSet>
 </databaseChangeLog>
