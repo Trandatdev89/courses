@@ -103,15 +103,16 @@ public class AuthServiceImpl implements AuthService {
         if (userRepository.existsByUsername(registerDTO.getUsername())) {
             throw new AppException(ErrorCode.USER_EXITED);
         }
-        UserEntity user = UserEntity.builder()
-                .username(registerDTO.getUsername())
-                .password(passwordEncoder.encode(registerDTO.getPassword()))
-                .address(registerDTO.getAddress())
-                .phone(registerDTO.getPhone())
-                .fullname(registerDTO.getFullname())
-                .email(registerDTO.getEmail())
-                .role(Role.USER)
-                .build();
+
+        UserEntity user = new UserEntity();
+        user.setUsername(registerDTO.getUsername());
+        user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
+        user.setAddress(registerDTO.getAddress());
+        user.setEmail(registerDTO.getEmail());
+        user.setFullname(registerDTO.getFullname());
+        user.setPhone(registerDTO.getPhone());
+        user.setRole(Role.USER);
+
         UserEntity userCreated = userRepository.save(user);
 
 

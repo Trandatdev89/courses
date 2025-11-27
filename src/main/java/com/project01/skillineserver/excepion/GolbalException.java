@@ -18,7 +18,7 @@ public class GolbalException {
                 .message(ex.getErrorCode().getMessage())
                 .code(ex.getErrorCode().getCode())
                 .build();
-        return ResponseEntity.status(ex.getErrorCode().getCode()).body(apiResponse);
+        return ResponseEntity.status(ex.getErrorCode().getStatusCode()).body(apiResponse);
     }
 
 

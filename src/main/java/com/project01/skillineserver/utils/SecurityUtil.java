@@ -106,7 +106,7 @@ public class SecurityUtil {
     }
 
     public SecretKey secretKey() {
-        byte[] bytes = Base64.from(secretKeyAccess).decode();
+        byte[] bytes = secretKeyAccess.getBytes();
         return new SecretKeySpec(bytes, 0, bytes.length, MacAlgorithm.HS256.getName());
     }
 
