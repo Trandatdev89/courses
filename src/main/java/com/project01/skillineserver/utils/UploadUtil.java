@@ -127,9 +127,6 @@ public class UploadUtil {
             case PDF:
                 folderUpload = Paths.get(pdfPath);
                 break;
-            case IMAGE:
-                folderUpload = Paths.get(videoPath);
-                break;
             default:
                 folderUpload = Paths.get(imagePath);
                 break;

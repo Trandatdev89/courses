@@ -5,6 +5,7 @@ import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.request.CourseReq;
 import com.project01.skillineserver.entity.*;
 import com.project01.skillineserver.enums.ErrorCode;
+import com.project01.skillineserver.enums.FileType;
 import com.project01.skillineserver.enums.SortField;
 import com.project01.skillineserver.excepion.CustomException.AppException;
 import com.project01.skillineserver.mapper.CourseMapper;
@@ -12,6 +13,7 @@ import com.project01.skillineserver.repository.CourseRepository;
 import com.project01.skillineserver.repository.EnrollmentRepository;
 import com.project01.skillineserver.repository.UserRepository;
 import com.project01.skillineserver.service.CourseService;
+import com.project01.skillineserver.utils.UploadUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,7 +22,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,6 +39,7 @@ public class CourseServiceImpl implements CourseService {
     private final CourseRepository courseRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final CourseMapper courseMapper;
+    private final UploadUtil uploadUtil;
 
     @Override
     public List<CourseEntity> getAllByCategoryId(Long categoryId) {
@@ -46,7 +52,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW,rollbackFor = {AppException.class})
-    public CourseEntity save(CourseReq courseReq) {
+    public CourseEntity save(CourseReq courseReq) throws IOException {
         CourseEntity courseEntityInDB;
 
         if (courseReq.id() != null) {
@@ -63,7 +69,13 @@ public class CourseServiceImpl implements CourseService {
         courseEntityInDB.setLevel(courseReq.level());
         courseEntityInDB.setDiscountPrice(courseReq.discount());
         courseEntityInDB.setTitle(courseReq.title());
-        courseEntityInDB.setThumbnail_url("https://images.pexels.com/photos/842711/pexels-photo-842711.jpeg");
+
+        Path pathFile = null;
+        if(courseReq.thumbnail()!=null && courseReq.thumbnail() instanceof MultipartFile){
+            pathFile = uploadUtil.createPathFile(courseReq.thumbnail(), FileType.IMAGE);
+        }
+
+        courseEntityInDB.setThumbnail_url(pathFile.toString());
 
         return courseRepository.save(courseEntityInDB);
     }
@@ -109,7 +121,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public PageResponse<CourseResponse> getCourses(int page, int size, String sort, String keyword) {
-        Sort sortField =  Sort.by(Sort.Direction.DESC,"createdAt");
+        Sort sortField =  Sort.by(Sort.Direction.DESC,"createAt");
         if(sort!=null && keyword!=null){
             sortField = SortField.ASC.getValue().equalsIgnoreCase(sort) ? Sort.by(Sort.Direction.ASC,keyword) : Sort.by(Sort.Direction.DESC,keyword);
         }

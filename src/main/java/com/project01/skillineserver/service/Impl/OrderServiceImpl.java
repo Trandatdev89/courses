@@ -76,6 +76,7 @@ public class OrderServiceImpl implements OrderService {
                 .status(OrderStatus.PAID)
                 .totalPrice(orderReq.getTotalPrice())
                 .createdAt(Instant.now())
+                .quantity(orderReq.getQuantity())
                 .build();
 
         courseService.purchaseCourse(orderReq.getCourseId(),user);

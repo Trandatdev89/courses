@@ -53,7 +53,7 @@ upload:
     pdf: uploads/pdf
 
 domain:
-  server: http://localhost:8080
+  server: http://localhost:8080/
 
 
 

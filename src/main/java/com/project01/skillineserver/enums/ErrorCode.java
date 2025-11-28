@@ -24,6 +24,9 @@ public enum ErrorCode {
     COURSE_NOT_FOUND(1011,"Course is not found",HttpStatus.NOT_FOUND),
     UNAUTHORIZATED(1012,"Account is not authentication",HttpStatus.UNAUTHORIZED),
     FOBIDEN(1013,"Account is not permisson access resource this",HttpStatus.UNAUTHORIZED),
+    ORDER_NOT_FOUND(1014,"Order not exits",HttpStatus.NOT_FOUND),
+
+
     INTERNAL_SERVER(9999,"Server error",HttpStatus.INTERNAL_SERVER_ERROR);
 
     private int code;

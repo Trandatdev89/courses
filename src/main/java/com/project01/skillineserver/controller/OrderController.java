@@ -1,5 +1,6 @@
 package com.project01.skillineserver.controller;
 
+import com.project01.skillineserver.config.CustomUserDetail;
 import com.project01.skillineserver.dto.ApiResponse;
 import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.request.OrderReq;
@@ -7,6 +8,7 @@ import com.project01.skillineserver.entity.OrderEntity;
 import com.project01.skillineserver.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -42,8 +44,12 @@ public class OrderController {
     }
 
     @PostMapping
-    @PreAuthorize("@authorizationService.isUserNormal()")
-    public ApiResponse<OrderEntity> saveOrder(@RequestBody OrderReq orderReq) {
+    @PreAuthorize("@authorizationService.isCanAccessApi()")
+    public ApiResponse<OrderEntity> saveOrder(@RequestBody OrderReq orderReq, @AuthenticationPrincipal CustomUserDetail customUserDetail) {
+        Long userId = customUserDetail.getUser().getId();
+
+        orderReq.setUserId(userId);
+
         return ApiResponse.<OrderEntity>builder()
                 .code(200)
                 .data(orderService.saveOrder(orderReq))

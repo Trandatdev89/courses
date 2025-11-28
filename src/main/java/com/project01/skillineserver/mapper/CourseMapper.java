@@ -25,20 +25,10 @@ public class CourseMapper {
 
     public CourseResponse toLectureResponse(CourseEntity courseEntity) {
 
-        String normalizedPath = courseEntity.getThumbnail_url()
-                .replace("\\", "/"); // chuyển tất cả \ thành /
-
-        // Thêm "/" nếu thiếu ở đầu
-        if (!normalizedPath.startsWith("/")) {
-            normalizedPath = "/" + normalizedPath;
-        }
-
-        String urlThumbnail = DOMAIN_SERVER+normalizedPath;
-
         return CourseResponse.builder()
                 .id(courseEntity.getId())
                 .title(courseEntity.getTitle())
-                .thumbnail_url(urlThumbnail)
+                .thumbnail_url(DOMAIN_SERVER+courseEntity.getThumbnail_url())
                 .categoryName(category.findById(courseEntity.getCategoryId()).get().getName())
                 .level(courseEntity.getLevel())
                 .price(courseEntity.getPrice())

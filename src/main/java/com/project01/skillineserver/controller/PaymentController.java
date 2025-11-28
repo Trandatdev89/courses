@@ -1,9 +1,14 @@
 package com.project01.skillineserver.controller;
 
 import com.project01.skillineserver.dto.reponse.VNPayResponse;
+import com.project01.skillineserver.entity.OrderEntity;
 import com.project01.skillineserver.entity.PaymentEntity;
+import com.project01.skillineserver.enums.ErrorCode;
+import com.project01.skillineserver.enums.OrderStatus;
 import com.project01.skillineserver.enums.PaymentMethod;
 import com.project01.skillineserver.enums.PaymentStatus;
+import com.project01.skillineserver.excepion.CustomException.AppException;
+import com.project01.skillineserver.repository.OrderRepository;
 import com.project01.skillineserver.repository.PaymentRepository;
 import com.project01.skillineserver.vnpay.VNPayService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,15 +30,16 @@ public class PaymentController {
 
     private final PaymentRepository paymentRepository;
     private final VNPayService vnPayService;
+    private final OrderRepository orderRepository;
 
     @GetMapping(value = "/api/payment")
-    @PreAuthorize("@authorizationService.isUserNormal()")
+    @PreAuthorize("@authorizationService.isCanAccessApi()")
     public VNPayResponse submitOrder(@RequestParam("orderId") int id,
                                      @RequestParam("amount") int orderTotal,
                                      @RequestParam("orderInfo") String orderInfo,
                                      HttpServletRequest request){
         String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
-        String vnpayUrl = vnPayService.createOrder(orderTotal*10000, orderInfo, baseUrl,id);
+        String vnpayUrl = vnPayService.createOrder(orderTotal*100, orderInfo, baseUrl,id);
         return VNPayResponse.builder()
                 .URL(vnpayUrl)
                 .status(200L)
@@ -42,8 +48,12 @@ public class PaymentController {
     }
 
     @GetMapping("/vnpay-payment/{id}")
-    @PreAuthorize("@authorizationService.isUserNormal()")
+    @PreAuthorize("@authorizationService.isCanAccessApi()")
     public ResponseEntity<Void> createPayment(@PathVariable int id, @RequestParam Map<String,String> params){
+
+        OrderEntity order = orderRepository.findById((long)id).orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        order.setStatus(OrderStatus.PAID);
+        orderRepository.save(order);
 
         PaymentEntity paymentEntity = PaymentEntity.builder()
                 .paidAt(Instant.now())
