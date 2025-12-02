@@ -16,15 +16,11 @@ public class CategoryMapper {
 
     public CategoryResponse toLectureResponse(CategoryEntity category) {
 
-        String normalizedPath = category.getPath()
-                .replace("\\", "/"); // chuyển tất cả \ thành /
+        String urlThumbnail = "";
 
-        // Thêm "/" nếu thiếu ở đầu
-        if (!normalizedPath.startsWith("/")) {
-            normalizedPath = "/" + normalizedPath;
+        if(category.getPath()!=null){
+            urlThumbnail = DOMAIN_SERVER+category.getPath();
         }
-
-        String urlThumbnail = DOMAIN_SERVER+normalizedPath;
 
         return new CategoryResponse(category.getId(), category.getName(), urlThumbnail);
     }

@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -90,13 +91,20 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String refreshToken(TokenRequest tokenRequest) {
-        boolean check = introspect(tokenRequest, TokenType.REFRESH_TOKEN);
+    public String refreshToken(TokenRequest tokenRequest, Authentication authentication) {
+        log.info("type of token : {}",tokenRequest.getTokenType());
+        boolean check = introspect(tokenRequest, tokenRequest.getTokenType());
         if (!check) {
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }
-        return securityUtil.generateToken(Objects.requireNonNull(AuthenticationUtil.getUserDetail()), TokenType.REFRESH_TOKEN);
+
+        if(!AuthenticationUtil.isAuthenticated(authentication)){
+            throw new AppException(ErrorCode.UNAUTHORIZATED);
+        }
+
+        return securityUtil.generateToken(Objects.requireNonNull(AuthenticationUtil.getUserDetail()), TokenType.ACCESS_TOKEN);
     }
+
 
     @Override
     public void createAccount(RegisterRequest registerDTO) {

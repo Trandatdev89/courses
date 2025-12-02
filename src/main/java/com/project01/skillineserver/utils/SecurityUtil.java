@@ -31,7 +31,9 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Component
@@ -70,8 +72,7 @@ public class SecurityUtil {
                 .subject(customUserDetail.getUser().getId().toString())
                 .issuedAt(Instant.now())
                 .expiresAt(Instant.now().plus(tokenType.equals(TokenType.ACCESS_TOKEN) ? expirationAccess : expirationRefresh, ChronoUnit.SECONDS))
-                .claim("scope", getAuthorities(customUserDetail))
-                .claim("loginAt", LocalDateTime.now().toString())
+                .claims(setClaims(customUserDetail,tokenType))
                 .issuer(customUserDetail.getUsername())
                 .id(UUID.randomUUID().toString())
                 .build();
@@ -99,7 +100,7 @@ public class SecurityUtil {
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }
 
-        if(redisService.existsKey(tokenId)){
+        if (redisService.existsKey(tokenId)) {
             throw new AppException(ErrorCode.ACCOUNT_IS_LOGOUT);
         }
         return signedJWT;
@@ -120,5 +121,13 @@ public class SecurityUtil {
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(" "));
+    }
+
+    private Consumer<Map<String, Object>> setClaims(CustomUserDetail customUserDetail,TokenType tokenType) {
+        return stringObjectMap -> {
+            stringObjectMap.put("scope", getAuthorities(customUserDetail));
+            stringObjectMap.put("loginAt", LocalDateTime.now().toString());
+            stringObjectMap.put("typeToken", tokenType);
+        };
     }
 }

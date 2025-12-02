@@ -6,8 +6,9 @@ import com.project01.skillineserver.enums.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import java.io.IOException;
+import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 
 public class JwtAccessDeniedEntryPoint implements AccessDeniedHandler {
 

@@ -2,14 +2,19 @@ package com.project01.skillineserver.controller;
 
 import com.project01.skillineserver.config.CustomUserDetail;
 import com.project01.skillineserver.dto.ApiResponse;
+import com.project01.skillineserver.dto.request.TokenRequest;
 import com.project01.skillineserver.entity.UserEntity;
+import com.project01.skillineserver.service.AuthService;
+import com.project01.skillineserver.service.Impl.AuthorizationService;
 import com.project01.skillineserver.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.text.ParseException;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+    private final AuthService authService;
 
     @GetMapping(value = "/info")
     @PreAuthorize("@authorizationService.isCanAccessApi()")
@@ -28,6 +34,28 @@ public class UserController {
                 .message("get info success!")
                 .code(200)
                 .data(userService.getMyInfo(userId))
+                .build();
+    }
+
+    @PostMapping(value = "/refresh-token")
+    @PreAuthorize("@authorizationService.isCanAccessApi()")
+    public ApiResponse<String> refreshToken(@RequestBody TokenRequest tokenRequest, Authentication authentication) throws ParseException {
+        return ApiResponse.<String>builder()
+                .code(200)
+                .message("Refresh Token Success!")
+                .data(authService.refreshToken(tokenRequest,authentication))
+                .build();
+    }
+
+    @GetMapping(value = "/logout")
+    @PreAuthorize("@authorizationService.isCanAccessApi()")
+    public ApiResponse<?> logout(HttpServletRequest request) throws ParseException {
+        String authHeader = request.getHeader("Authorization");
+        String token = authHeader.replace("Bearer ", "");
+        authService.logout(token);
+        return ApiResponse.builder()
+                .message("Logout Success!")
+                .code(200)
                 .build();
     }
 

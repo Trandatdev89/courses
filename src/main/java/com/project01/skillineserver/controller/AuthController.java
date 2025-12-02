@@ -10,6 +10,7 @@ import com.project01.skillineserver.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
@@ -34,25 +35,16 @@ public class AuthController {
     @PostMapping(value = "/introspect-token")
     public ApiResponse<Boolean> introspect(@RequestBody TokenRequest tokenRequest) {
         TokenType tokenType = tokenRequest.getTokenType();
-        log.info("type token: {}",tokenType);
+        log.info("type token: {}", tokenType);
         return ApiResponse.<Boolean>builder()
                 .code(200)
                 .message("Token Valid!")
-                .data(authService.introspect(tokenRequest,tokenType))
-                .build();
-    }
-
-    @PostMapping(value = "/refresh")
-    public ApiResponse<String> refreshToken(@RequestBody TokenRequest tokenRequest) throws ParseException {
-        return ApiResponse.<String>builder()
-                .code(200)
-                .message("Refresh Token Success!")
-                .data(authService.refreshToken(tokenRequest))
+                .data(authService.introspect(tokenRequest, tokenType))
                 .build();
     }
 
     @PostMapping("/register")
-    public ApiResponse<?> register(@RequestBody RegisterRequest registerDTO){
+    public ApiResponse<?> register(@RequestBody RegisterRequest registerDTO) {
         authService.createAccount(registerDTO);
         return ApiResponse.builder()
                 .message("Hãy xác thực tài khoản bằng email")
@@ -61,25 +53,11 @@ public class AuthController {
     }
 
     @GetMapping(value = "/verify")
-    public ApiResponse<?> verifyAccount(@RequestParam(name = "token") String token,@RequestParam(name = "userId") Long userId){
-        authService.verifyAccount(token,userId);
+    public ApiResponse<?> verifyAccount(@RequestParam(name = "token") String token, @RequestParam(name = "userId") Long userId) {
+        authService.verifyAccount(token, userId);
         return ApiResponse.builder()
                 .message("Xác thực tài khoản thành công!")
                 .code(200)
                 .build();
     }
-
-    @GetMapping(value = "/logout")
-    public ApiResponse<?> logout(HttpServletRequest request) throws ParseException {
-
-        String authHeader = request.getHeader("Authorization");
-        String token = authHeader.replace("Bearer ", "");
-
-        authService.logout(token);
-        return ApiResponse.builder()
-                .message("Logout Success!")
-                .code(200)
-                .build();
-    }
-
 }

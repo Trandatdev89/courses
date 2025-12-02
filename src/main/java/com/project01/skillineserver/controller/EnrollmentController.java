@@ -1,11 +1,13 @@
 package com.project01.skillineserver.controller;
 
+import com.project01.skillineserver.config.CustomUserDetail;
 import com.project01.skillineserver.dto.ApiResponse;
 import com.project01.skillineserver.entity.CourseEntity;
 import com.project01.skillineserver.projection.CourseProjection;
 import com.project01.skillineserver.service.EnrollmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,9 +25,9 @@ public class EnrollmentController {
 
     @GetMapping(value = "/buy")
     @PreAuthorize("@authorizationService.isCanAccessApi()")
-    public ApiResponse<List<CourseProjection>> getListCourseUserBuy(){
+    public ApiResponse<List<CourseProjection>> getListCourseUserBuy(@AuthenticationPrincipal CustomUserDetail customUserDetail){
         return ApiResponse.<List<CourseProjection>>builder()
-                .data(enrollmentService.getListCourseUserBuy())
+                .data(enrollmentService.getListCourseUserBuy(customUserDetail.getUser().getId()))
                 .code(200)
                 .message("success")
                 .build();

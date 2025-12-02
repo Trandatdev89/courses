@@ -6,6 +6,6 @@ import com.project01.skillineserver.projection.CourseProjection;
 import java.util.List;
 
 public interface EnrollmentService {
-    List<CourseProjection> getListCourseUserBuy();
+    List<CourseProjection> getListCourseUserBuy(Long userId);
     Boolean checkUserEnrollment(Long courseId);
 }

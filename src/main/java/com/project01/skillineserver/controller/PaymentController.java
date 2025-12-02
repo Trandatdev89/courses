@@ -13,6 +13,8 @@ import com.project01.skillineserver.repository.PaymentRepository;
 import com.project01.skillineserver.vnpay.VNPayService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.NonFinal;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +34,10 @@ public class PaymentController {
     private final VNPayService vnPayService;
     private final OrderRepository orderRepository;
 
+    @Value("${domain.client}")
+    @NonFinal
+    private String DOMAIN_CLIENT;
+
     @GetMapping(value = "/api/payment")
     @PreAuthorize("@authorizationService.isCanAccessApi()")
     public VNPayResponse submitOrder(@RequestParam("orderId") int id,
@@ -48,7 +54,6 @@ public class PaymentController {
     }
 
     @GetMapping("/vnpay-payment/{id}")
-    @PreAuthorize("@authorizationService.isCanAccessApi()")
     public ResponseEntity<Void> createPayment(@PathVariable int id, @RequestParam Map<String,String> params){
 
         OrderEntity order = orderRepository.findById((long)id).orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
@@ -65,7 +70,7 @@ public class PaymentController {
 
         paymentRepository.save(paymentEntity);
 
-        String targetUrl = "http://localhost:5173/success";
+        String targetUrl = DOMAIN_CLIENT+"/success";
         org.springframework.http.HttpHeaders headers = new HttpHeaders();
         headers.setLocation(URI.create(targetUrl));
         return new ResponseEntity<>(headers, HttpStatus.FOUND);

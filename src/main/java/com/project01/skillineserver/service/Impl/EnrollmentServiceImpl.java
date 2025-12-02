@@ -1,5 +1,6 @@
 package com.project01.skillineserver.service.Impl;
 
+import com.project01.skillineserver.config.CustomUserDetail;
 import com.project01.skillineserver.entity.CourseEntity;
 import com.project01.skillineserver.projection.CourseProjection;
 import com.project01.skillineserver.repository.EnrollmentRepository;
@@ -18,8 +19,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
 
     @Override
-    public List<CourseProjection> getListCourseUserBuy() {
-        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+    public List<CourseProjection> getListCourseUserBuy(Long userId) {
         return enrollmentRepository.getListCourseUserBuy(userId);
     }
 
