@@ -4,6 +4,7 @@ import com.project01.skillineserver.dto.reponse.CategoryResponse;
 import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.request.CategoryReq;
 import com.project01.skillineserver.entity.CategoryEntity;
+import com.project01.skillineserver.entity.CourseEntity;
 import com.project01.skillineserver.entity.OrderEntity;
 import com.project01.skillineserver.enums.ErrorCode;
 import com.project01.skillineserver.enums.FileType;
@@ -11,6 +12,7 @@ import com.project01.skillineserver.enums.SortField;
 import com.project01.skillineserver.excepion.CustomException.AppException;
 import com.project01.skillineserver.mapper.CategoryMapper;
 import com.project01.skillineserver.repository.CategoryRepository;
+import com.project01.skillineserver.repository.CourseRepository;
 import com.project01.skillineserver.service.CategoryService;
 import com.project01.skillineserver.utils.UploadUtil;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -33,28 +36,20 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final UploadUtil uploadUtil;
     private final CategoryMapper categoryMapper;
+    private final CourseRepository courseRepository;
 
     @Override
+    @Transactional(rollbackFor = AppException.class)
     public void save(CategoryReq category) throws IOException {
-        CategoryEntity categoryInDB;
+        CategoryEntity categoryInDB = Optional.ofNullable(category.id())
+                .flatMap(categoryRepository::findById)
+                .orElse(new CategoryEntity());
 
-        if (category.id() != null) { //updatr
-            categoryInDB = categoryRepository.findById(category.id())
-                    .orElseGet(CategoryEntity::new);
-        } else {  //create
-            categoryInDB = new CategoryEntity();
-        }
-
-        String pathImage;
-
-        if(category.path() != null && category.path() instanceof MultipartFile){
-            pathImage = uploadUtil.createPathFile(category.path(), FileType.IMAGE).toString();
-        }else{
-            pathImage = categoryInDB.getPath();
-        }
+        String pathImage = resolveImagePath(category.path(),categoryInDB.getPath());
 
         categoryInDB.setName(category.name());
         categoryInDB.setPath(pathImage);
+
         categoryRepository.save(categoryInDB);
     }
 
@@ -91,10 +86,21 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional(rollbackFor = {AppException.class})
     public void delete(List<Long> categoryIds) {
-        if(categoryIds!=null && !categoryIds.isEmpty()){
-            categoryRepository.deleteByIdIn(categoryIds);
+        if(categoryIds == null || categoryIds.isEmpty()){
+            throw new AppException(ErrorCode.LIST_ID_EMPTY);
+        }
+
+        courseRepository.deleteAllByCategoryIdIn(categoryIds);
+
+        categoryRepository.deleteByIdIn(categoryIds);
+    }
+
+
+    private String resolveImagePath(Object inputPath, String exitingPath) throws IOException {
+        if(inputPath instanceof MultipartFile multipartFile){
+            return uploadUtil.createPathFile(multipartFile,FileType.IMAGE).toString();
         }else{
-            throw new  AppException(ErrorCode.LIST_ID_EMPTY);
+            return exitingPath!=null ? exitingPath : "";
         }
     }
 

@@ -100,9 +100,9 @@ public class SecurityUtil {
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }
 
-        if (redisService.existsKey(tokenId)) {
-            throw new AppException(ErrorCode.ACCOUNT_IS_LOGOUT);
-        }
+//        if (redisService.existsKey(tokenId)) {
+//            throw new AppException(ErrorCode.ACCOUNT_IS_LOGOUT);
+//        }
         return signedJWT;
     }
 

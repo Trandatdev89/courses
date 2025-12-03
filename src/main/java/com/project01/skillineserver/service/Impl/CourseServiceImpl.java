@@ -30,6 +30,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,25 +43,25 @@ public class CourseServiceImpl implements CourseService {
     private final UploadUtil uploadUtil;
 
     @Override
-    public List<CourseEntity> getAllByCategoryId(Long categoryId) {
+    public List<CourseResponse> getAllByCategoryId(Long categoryId) {
         List<CourseEntity> courses = courseRepository.findAllByCategoryId(categoryId);
         if (courses.isEmpty()) {
             throw new AppException(ErrorCode.COURSE_EMPTY);
         }
-        return courses;
+
+        List<CourseResponse> courseResponses = courses.stream().map(courseMapper::toLectureResponse).toList();
+        return courseResponses;
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW,rollbackFor = {AppException.class})
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {AppException.class})
     public CourseEntity save(CourseReq courseReq) throws IOException {
-        CourseEntity courseEntityInDB;
 
-        if (courseReq.id() != null) {
-            courseEntityInDB = courseRepository.findById(courseReq.id())
-                    .orElseGet(CourseEntity::new);
-        } else {
-            courseEntityInDB = new CourseEntity();
-        }
+        CourseEntity courseEntityInDB = Optional.ofNullable(courseReq.id())
+                .flatMap(courseRepository::findById)
+                .orElse(new CourseEntity());
+
+        String pathImage = resolvePathFile(courseReq.thumbnail(),courseEntityInDB.getThumbnail_url());
 
         courseEntityInDB.setCategoryId(courseReq.categoryId());
         courseEntityInDB.setDescription(courseReq.desc());
@@ -69,13 +70,7 @@ public class CourseServiceImpl implements CourseService {
         courseEntityInDB.setLevel(courseReq.level());
         courseEntityInDB.setDiscountPrice(courseReq.discount());
         courseEntityInDB.setTitle(courseReq.title());
-
-        Path pathFile = null;
-        if(courseReq.thumbnail()!=null && courseReq.thumbnail() instanceof MultipartFile){
-            pathFile = uploadUtil.createPathFile(courseReq.thumbnail(), FileType.IMAGE);
-        }
-
-        courseEntityInDB.setThumbnail_url(pathFile.toString());
+        courseEntityInDB.setThumbnail_url(pathImage);
 
         return courseRepository.save(courseEntityInDB);
     }
@@ -90,8 +85,9 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public CourseEntity getCourseById(Long id) {
-        return courseRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+    public CourseResponse getCourseById(Long id) {
+        CourseEntity course = courseRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+        return courseMapper.toLectureResponse(course);
     }
 
     @Override
@@ -110,22 +106,22 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<CourseEntity> getListCourseById(List<Long> ids) {
-        return courseRepository.findAllByIdIn(ids);
+    public List<CourseResponse> getListCourseById(List<Long> ids) {
+        return courseRepository.findAllByIdIn(ids).stream().map(courseMapper::toLectureResponse).toList();
     }
 
     @Override
-    public List<CourseEntity> getCourseNotPagination() {
-        return courseRepository.findAll();
+    public List<CourseResponse> getCourseNotPagination() {
+        return courseRepository.findAll().stream().map(courseMapper::toLectureResponse).toList();
     }
 
     @Override
     public PageResponse<CourseResponse> getCourses(int page, int size, String sort, String keyword) {
-        Sort sortField =  Sort.by(Sort.Direction.DESC,"createAt");
-        if(sort!=null && keyword!=null){
-            sortField = SortField.ASC.getValue().equalsIgnoreCase(sort) ? Sort.by(Sort.Direction.ASC,keyword) : Sort.by(Sort.Direction.DESC,keyword);
+        Sort sortField = Sort.by(Sort.Direction.DESC, "createAt");
+        if (sort != null && keyword != null) {
+            sortField = SortField.ASC.getValue().equalsIgnoreCase(sort) ? Sort.by(Sort.Direction.ASC, keyword) : Sort.by(Sort.Direction.DESC, keyword);
         }
-        PageRequest pageRequest  = PageRequest.of(page-1, size,sortField);
+        PageRequest pageRequest = PageRequest.of(page - 1, size, sortField);
 
         Page<CourseEntity> orders = courseRepository.findAll(pageRequest);
 
@@ -138,5 +134,13 @@ public class CourseServiceImpl implements CourseService {
                 .totalElements(orders.getTotalElements())
                 .totalPages(orders.getTotalPages())
                 .build();
+    }
+
+    private String resolvePathFile(Object inputFile, String pathFile) throws IOException {
+        if (inputFile instanceof MultipartFile multipartFile) {
+            return uploadUtil.createPathFile(multipartFile,FileType.IMAGE).toString();
+        }else{
+            return pathFile!=null ? pathFile : "";
+        }
     }
 }

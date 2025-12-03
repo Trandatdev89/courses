@@ -31,8 +31,8 @@ public class CourseController {
     }
 
     @GetMapping()
-    public ApiResponse<List<CourseEntity>> getCourseByCategory(@RequestParam Long categoryId) {
-        return ApiResponse.<List<CourseEntity>>builder()
+    public ApiResponse<List<CourseResponse>> getCourseByCategory(@RequestParam Long categoryId) {
+        return ApiResponse.<List<CourseResponse>>builder()
                 .code(200)
                 .message("Success")
                 .data(courseService.getAllByCategoryId(categoryId))
@@ -40,8 +40,8 @@ public class CourseController {
     }
 
     @GetMapping(value = "/not-pagi")
-    public ApiResponse<List<CourseEntity>> getCourseNotPagination() {
-        return ApiResponse.<List<CourseEntity>>builder()
+    public ApiResponse<List<CourseResponse>> getCourseNotPagination() {
+        return ApiResponse.<List<CourseResponse>>builder()
                 .code(200)
                 .message("Success")
                 .data(courseService.getCourseNotPagination())
@@ -80,8 +80,8 @@ public class CourseController {
     }
 
     @GetMapping(value = "/{id}")
-    public ApiResponse<CourseEntity> getCourseById(@PathVariable Long id) {
-        return ApiResponse.<CourseEntity>builder()
+    public ApiResponse<CourseResponse> getCourseById(@PathVariable Long id) {
+        return ApiResponse.<CourseResponse>builder()
                 .code(200)
                 .message("Success")
                 .data(courseService.getCourseById(id))

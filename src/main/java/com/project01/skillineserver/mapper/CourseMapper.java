@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+
 @Component
 public class CourseMapper {
 
@@ -25,13 +27,16 @@ public class CourseMapper {
 
     public CourseResponse toLectureResponse(CourseEntity courseEntity) {
 
+        String path = courseEntity.getThumbnail_url().replace(File.separator, "/");
+
         return CourseResponse.builder()
                 .id(courseEntity.getId())
                 .title(courseEntity.getTitle())
-                .thumbnail_url(DOMAIN_SERVER+courseEntity.getThumbnail_url())
+                .thumbnail_url(DOMAIN_SERVER+path)
                 .categoryName(category.findById(courseEntity.getCategoryId()).get().getName())
                 .level(courseEntity.getLevel())
                 .price(courseEntity.getPrice())
+                .description(courseEntity.getDescription())
                 .status(courseEntity.isStatus())
                 .createAt(dateUtil.format(courseEntity.getCreateAt()))
                 .updateAt(dateUtil.format(courseEntity.getUpdateAt()))

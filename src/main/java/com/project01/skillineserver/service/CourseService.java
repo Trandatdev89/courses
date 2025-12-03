@@ -10,12 +10,12 @@ import java.io.IOException;
 import java.util.List;
 
 public interface CourseService {
-    List<CourseEntity> getAllByCategoryId(Long categoryId);
+    List<CourseResponse> getAllByCategoryId(Long categoryId);
     CourseEntity save(CourseReq courseReq) throws IOException;
     void delete(List<Long> courseId);
-    CourseEntity getCourseById(Long id);
+    CourseResponse getCourseById(Long id);
     void purchaseCourse(List<Long> idCourse, UserEntity user);
-    List<CourseEntity> getListCourseById(List<Long> ids);
-    List<CourseEntity> getCourseNotPagination();
+    List<CourseResponse> getListCourseById(List<Long> ids);
+    List<CourseResponse> getCourseNotPagination();
     PageResponse<CourseResponse> getCourses(int page, int size, String sort, String keyword);
 }

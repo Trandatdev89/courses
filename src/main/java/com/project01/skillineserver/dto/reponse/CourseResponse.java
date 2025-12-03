@@ -16,6 +16,7 @@ public class CourseResponse {
     private String categoryName;
     private LevelEnum level;
     private String thumbnail_url;
+    private String description;
     private boolean status;
     private BigDecimal price;
     private String createAt;
