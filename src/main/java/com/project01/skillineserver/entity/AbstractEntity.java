@@ -8,7 +8,10 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.time.Instant;
+import java.util.UUID;
 
 @MappedSuperclass
 @Getter
@@ -28,4 +31,21 @@ public abstract class AbstractEntity<T extends Serializable> implements Serializ
     @LastModifiedDate
     @Column(name = "updated_at")
     private Instant updateAt;
+
+    @PrePersist
+    public void generateId(){
+        if(id==null&& isStringId()){
+            id = (T) UUID.randomUUID().toString();
+        }
+    }
+
+    private boolean isStringId(){
+        Type genericSupperClass = getClass().getGenericSuperclass();
+        if(genericSupperClass instanceof ParameterizedType){
+            Type[] types = ((ParameterizedType)genericSupperClass).getActualTypeArguments();
+            return types[0].equals(String.class);
+        }
+
+        return false;
+    }
 }

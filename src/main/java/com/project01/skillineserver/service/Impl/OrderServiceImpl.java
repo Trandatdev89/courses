@@ -73,13 +73,11 @@ public class OrderServiceImpl implements OrderService {
 
         OrderEntity orderEntity = OrderEntity.builder()
                 .userId(user.getId())
-                .status(OrderStatus.PAID)
+                .status(orderReq.getStatus())
                 .totalPrice(orderReq.getTotalPrice())
                 .createdAt(Instant.now())
                 .quantity(orderReq.getQuantity())
                 .build();
-
-        courseService.purchaseCourse(orderReq.getCourseId(),user);
 
         OrderEntity order = orderRepository.save(orderEntity);
 

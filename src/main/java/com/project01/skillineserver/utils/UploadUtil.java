@@ -19,6 +19,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -60,6 +62,21 @@ public class UploadUtil {
         lectureEntity.setFilePath(Paths.get(videoPath,pathVideo.getFileName().toString()).toString());
 
         return lectureEntity;
+    }
+
+    public Map<String,Object> generateVideoUrl(MultipartFile lectureFile) throws IOException, InterruptedException {
+        Map<String,Object> claimVideo = new HashMap<>();
+        Path pathVideo = createPathFile(lectureFile, FileType.VIDEO);
+
+        String durationVideo = getVideoDuration(pathVideo.toString());
+        String imageVideo = extractThumbnail(pathVideo.toString());
+
+        claimVideo.put("filePath",pathVideo.toString());
+        claimVideo.put("contentType",lectureFile.getContentType());
+        claimVideo.put("duration",durationVideo);
+        claimVideo.put("image",imageVideo);
+
+        return claimVideo;
     }
 
     public String convertVideoUrl(String fileName,String folder){

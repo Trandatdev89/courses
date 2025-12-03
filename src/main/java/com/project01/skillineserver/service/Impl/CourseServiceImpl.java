@@ -91,11 +91,11 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public void purchaseCourse(List<Long> idCourse, UserEntity user) {
+    public void purchaseCourse(List<Long> idCourse, Long userId) {
         List<EnrollmentEntity> enrollmentEntities = new ArrayList<>();
         for (Long courseId : idCourse) {
             EnrollmentEntity enrollmentEntity = EnrollmentEntity.builder()
-                    .userId(user.getId())
+                    .userId(userId)
                     .courseId(courseId)
                     .enrolledAt(Instant.now())
                     .progress(0l)

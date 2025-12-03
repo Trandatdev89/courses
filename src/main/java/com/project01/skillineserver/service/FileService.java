@@ -4,4 +4,5 @@ import java.io.IOException;
 
 public interface FileService {
     void processVideo(String videoId) throws IOException, InterruptedException;
+    void processVideoAsync(String videoId);
 }

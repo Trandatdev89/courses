@@ -25,7 +25,8 @@ public enum ErrorCode {
     UNAUTHORIZATED(1012,"Account is not authentication",HttpStatus.UNAUTHORIZED),
     FOBIDEN(1013,"Account is not permisson access resource this",HttpStatus.UNAUTHORIZED),
     ORDER_NOT_FOUND(1014,"Order not exits",HttpStatus.NOT_FOUND),
-
+    VIDEO_CAN_NOT_UPLOAD(1015,"Video is can not uploaded",HttpStatus.INTERNAL_SERVER_ERROR),
+    VIDEO_PROCESSING_FAILED(1016,"Video processing faile",HttpStatus.INTERNAL_SERVER_ERROR),
 
     INTERNAL_SERVER(9999,"Server error",HttpStatus.INTERNAL_SERVER_ERROR);
 

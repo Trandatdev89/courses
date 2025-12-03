@@ -28,6 +28,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -50,29 +51,39 @@ public class LectureServiceImpl implements LectureService {
     @Override
     public LectureEntity save(LectureReq lectureReq) throws IOException, InterruptedException {
 
-        LectureEntity lectureEntity;
+        boolean isUpdate = lectureReq.id()!=null;
 
-        if (lectureReq.id() != null) {
-            lectureEntity =  lectureRepository.findById(lectureReq.id())
-                    .orElseGet(LectureEntity::new);
-        } else {
-            lectureEntity = new LectureEntity();
-        }
-
-
-        if (lectureReq.videoFile() != null) {
-            lectureEntity = uploadUtil.generateVideoUrl(lectureReq.videoFile(), lectureEntity);
-        }
+        LectureEntity lectureEntity = isUpdate
+                ? lectureRepository.findById(lectureReq.id())
+                .orElseThrow(() -> new AppException(ErrorCode.LECTURE_NOT_FOUND))
+                : new LectureEntity();
 
         lectureEntity.setTitle(lectureReq.title());
         lectureEntity.setPosition(lectureReq.position());
         lectureEntity.setCourseId(lectureReq.courseId());
         lectureEntity.setUpdateAt(Instant.now());
-        lectureEntity.setCreateAt(Instant.now());
 
+        if(!isUpdate){
+            lectureEntity.setCreateAt(Instant.now());
+        }
+
+        //handle Video upload only if new file
+        if(lectureReq.videoFile()!=null && !lectureReq.videoFile().isEmpty()){
+            Map<String,Object> videoInfo = resolveVideoPath(lectureReq.videoFile());
+
+            if (videoInfo != null) {
+                lectureEntity.setFilePath((String) videoInfo.get("filePath"));
+                lectureEntity.setContentType((String) videoInfo.get("contentType"));
+                lectureEntity.setDuration((String) videoInfo.get("duration"));
+                lectureEntity.setImage((String) videoInfo.get("image"));
+            }
+
+        }
         LectureEntity lectureNeedSave = lectureRepository.save(lectureEntity);
 
-        fileService.processVideo(lectureNeedSave.getId());
+        if (lectureReq.videoFile() != null && !lectureReq.videoFile().isEmpty()) {
+            fileService.processVideoAsync(lectureNeedSave.getId());
+        }
 
         return lectureNeedSave;
     }
@@ -116,7 +127,7 @@ public class LectureServiceImpl implements LectureService {
 
         //file ki length
         long fileLength = path.toFile().length();
-        log.info("Length all file video :{}",fileLength);
+        log.info("Length all file video :{}", fileLength);
 
 
         //pahle jaisa hi code hai kyuki range header null
@@ -138,11 +149,11 @@ public class LectureServiceImpl implements LectureService {
         if (rangeEnd >= fileLength) {
             rangeEnd = fileLength - 1;
 
-            log.info("RangeEnd is max limit :{}",rangeEnd);
+            log.info("RangeEnd is max limit :{}", rangeEnd);
         }
 
-        log.info("range start : {}" , rangeStart);
-        log.info("range end : {}" , rangeEnd);
+        log.info("range start : {}", rangeStart);
+        log.info("range end : {}", rangeEnd);
         InputStream inputStream;
 
         try {
@@ -176,14 +187,14 @@ public class LectureServiceImpl implements LectureService {
     }
 
     @Override
-    public PageResponse<LectureResponse> getListLecture(int page, int size, String sort, String keyword,Long courseId) {
-        Sort sortField =  Sort.by(Sort.Direction.DESC,"createAt");
-        if(sort!=null && keyword!=null){
-            sortField = SortField.ASC.getValue().equalsIgnoreCase(sort) ? Sort.by(Sort.Direction.ASC,keyword) : Sort.by(Sort.Direction.DESC,keyword);
+    public PageResponse<LectureResponse> getListLecture(int page, int size, String sort, String keyword, Long courseId) {
+        Sort sortField = Sort.by(Sort.Direction.DESC, "createAt");
+        if (sort != null && keyword != null) {
+            sortField = SortField.ASC.getValue().equalsIgnoreCase(sort) ? Sort.by(Sort.Direction.ASC, keyword) : Sort.by(Sort.Direction.DESC, keyword);
         }
-        PageRequest pageRequest  = PageRequest.of(page-1, size,sortField);
+        PageRequest pageRequest = PageRequest.of(page - 1, size, sortField);
 
-        Page<LectureEntity> orders = lectureRepository.findAllByCourseId(pageRequest,courseId);
+        Page<LectureEntity> orders = lectureRepository.findAllByCourseId(pageRequest, courseId);
 
         List<LectureResponse> listLectureResponse = orders.getContent().stream().map(lectureMapper::toLectureResponse).toList();
 
@@ -198,8 +209,22 @@ public class LectureServiceImpl implements LectureService {
 
     @Override
     public List<LectureResponse> getListLectureNotPagi(Long courseId) {
-        List<LectureEntity> lectureEntityList  = lectureRepository.findAllByCourseId(courseId);
+        List<LectureEntity> lectureEntityList = lectureRepository.findAllByCourseId(courseId);
         return lectureEntityList.stream().map(lectureMapper::toLectureResponse).toList();
+    }
+
+    private Map<String,Object> resolveVideoPath(MultipartFile inputFile){
+        if(inputFile==null || inputFile.isEmpty()){
+            return null;
+        }
+        try{
+           return uploadUtil.generateVideoUrl(inputFile);
+        }catch (InterruptedException e){
+            Thread.currentThread().interrupt();
+            throw new AppException(ErrorCode.VIDEO_PROCESSING_FAILED);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

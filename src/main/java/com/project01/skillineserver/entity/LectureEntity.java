@@ -1,5 +1,6 @@
 package com.project01.skillineserver.entity;
 
+import com.project01.skillineserver.enums.ProcessStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -30,6 +31,9 @@ public class LectureEntity{
     private String contentType;
     @Column(name = "file_path",nullable = false)
     private String filePath;
+
+    @Enumerated(EnumType.STRING)
+    private ProcessStatus processStatus;
 
     @CreatedDate
     @Column(name = "created_at")

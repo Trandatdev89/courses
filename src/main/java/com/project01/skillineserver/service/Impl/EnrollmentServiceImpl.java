@@ -5,13 +5,14 @@ import com.project01.skillineserver.entity.CourseEntity;
 import com.project01.skillineserver.projection.CourseProjection;
 import com.project01.skillineserver.repository.EnrollmentRepository;
 import com.project01.skillineserver.service.EnrollmentService;
+import com.project01.skillineserver.utils.AuthenticationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
+@Service("enrollmentService")
 @RequiredArgsConstructor
 public class EnrollmentServiceImpl implements EnrollmentService {
 
@@ -25,7 +26,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     @Override
     public Boolean checkUserEnrollment(Long courseId) {
-        Long userId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
-        return enrollmentRepository.isUserEnrolledInCourse(userId,courseId) > 0;
+        CustomUserDetail customUserDetail = AuthenticationUtil.getUserDetail();
+        assert customUserDetail != null;
+        return enrollmentRepository.isUserEnrolledInCourse(customUserDetail.getUser().getId(),courseId) > 0;
     }
 }

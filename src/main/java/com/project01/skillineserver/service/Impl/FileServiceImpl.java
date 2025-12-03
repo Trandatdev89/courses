@@ -2,6 +2,7 @@ package com.project01.skillineserver.service.Impl;
 
 import com.project01.skillineserver.entity.LectureEntity;
 import com.project01.skillineserver.enums.ErrorCode;
+import com.project01.skillineserver.enums.ProcessStatus;
 import com.project01.skillineserver.excepion.CustomException.AppException;
 import com.project01.skillineserver.repository.LectureRepository;
 import com.project01.skillineserver.service.FileService;
@@ -9,6 +10,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -16,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
@@ -36,17 +39,29 @@ public class FileServiceImpl implements FileService {
         }
     }
 
+    @Async("videoProcessingExecutor")
+    public void processVideoAsync(String videoId){
+        try{
+            processVideo(videoId);
+            CompletableFuture.completedFuture(null);
+        }catch (Exception e){
+            updateLectureStatus(videoId, ProcessStatus.FAILED);
+            CompletableFuture.failedFuture(e);
+        }
+    }
+
     @Override
     public void processVideo(String videoId) throws IOException, InterruptedException {
         LectureEntity lectureEntityInDB = lectureRepository.findById(videoId)
                 .orElseThrow(() -> new AppException(ErrorCode.LECTURE_NOT_FOUND));
 
+        //update status Processing:
+        lectureEntityInDB.setProcessStatus(ProcessStatus.PROCESSING);
+        lectureRepository.save(lectureEntityInDB);
+
         String filePathOfLecture = lectureEntityInDB.getFilePath();
-
         Path pathLectureInDB = Paths.get(filePathOfLecture);
-
         Path streamVideoHls = Paths.get(HLS_DIR,  videoId);
-
         Path outputPath = Files.createDirectories(streamVideoHls);
 
         String ffmpegCmd = String.format(
@@ -54,12 +69,25 @@ public class FileServiceImpl implements FileService {
                 pathLectureInDB, outputPath, outputPath
         );
 
-        ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c", ffmpegCmd);
+        ProcessBuilder processBuilder = new ProcessBuilder("/bin/bash", "-c", ffmpegCmd);
         processBuilder.inheritIO();
+
         Process process = processBuilder.start();
         int exit = process.waitFor();
+
         if (exit != 0) {
-            throw new RuntimeException("video processing failed!!");
+            lectureEntityInDB.setProcessStatus(ProcessStatus.FAILED);
+            throw new AppException(ErrorCode.VIDEO_CAN_NOT_UPLOAD);
         }
+
+        lectureEntityInDB.setProcessStatus(ProcessStatus.COMPLETED);
+        lectureRepository.save(lectureEntityInDB);
+    }
+
+    private void updateLectureStatus(String videoId,ProcessStatus processStatus){
+        LectureEntity lecture = lectureRepository.findById(videoId)
+                .orElseThrow(() -> new AppException(ErrorCode.LECTURE_NOT_FOUND));
+        lecture.setProcessStatus(processStatus);
+        lectureRepository.save(lecture);
     }
 }
