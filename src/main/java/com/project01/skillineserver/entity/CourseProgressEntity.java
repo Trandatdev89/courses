@@ -16,8 +16,8 @@ public class CourseProgressEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "enrolment_id")
-    private Long enrolmentId;
+    @Column(name = "enrollment_id")
+    private Long enrollmentId;
     @Column(name = "lecture_id")
     private String lectureId;
     @Column(name = "is_completed")

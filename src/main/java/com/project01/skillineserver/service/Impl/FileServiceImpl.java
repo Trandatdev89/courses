@@ -10,6 +10,8 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +50,16 @@ public class FileServiceImpl implements FileService {
             updateLectureStatus(videoId, ProcessStatus.FAILED);
             CompletableFuture.failedFuture(e);
         }
+    }
+
+    @Override
+    public ResponseEntity<Resource> streamMasterPlaylist(String videoId) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<Resource> streamSegment(String videoId, String segmentName) {
+        return null;
     }
 
     @Override

@@ -26,7 +26,7 @@ public interface EnrollmentRepository extends JpaRepository<EnrollmentEntity,Lon
     List<CourseProjection> getListCourseUserBuy(@Param("userId") Long userId);
 
     @Query(value = "SELECT COUNT(*) > 0 " +
-            "FROM enrollment en" +
+            "FROM enrollment en " +
             "WHERE en.user_id = :userId AND en.course_id = :courseId",
             nativeQuery = true)
     int isUserEnrolledInCourse(@Param("userId") Long userId,@Param("courseId") Long courseId);

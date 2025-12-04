@@ -213,6 +213,11 @@ public class LectureServiceImpl implements LectureService {
         return lectureEntityList.stream().map(lectureMapper::toLectureResponse).toList();
     }
 
+    @Override
+    public Long countLectureInCourse(Long courseId) {
+        return lectureRepository.countLectureByCourseId(courseId);
+    }
+
     private Map<String,Object> resolveVideoPath(MultipartFile inputFile){
         if(inputFile==null || inputFile.isEmpty()){
             return null;

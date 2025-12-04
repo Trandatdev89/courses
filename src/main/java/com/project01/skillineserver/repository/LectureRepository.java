@@ -22,4 +22,7 @@ public interface LectureRepository extends JpaRepository<LectureEntity,String> {
 
 
     List<LectureEntity> findAllByCourseId(Long courseId);
+
+    @Query("select count(le.id) from LectureEntity le inner join CourseEntity co on le.courseId=co.id where le.courseId = :courseId")
+    Long countLectureByCourseId(Long courseId);
 }
