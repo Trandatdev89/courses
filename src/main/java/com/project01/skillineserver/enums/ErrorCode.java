@@ -27,6 +27,8 @@ public enum ErrorCode {
     ORDER_NOT_FOUND(1014,"Order not exits",HttpStatus.NOT_FOUND),
     VIDEO_CAN_NOT_UPLOAD(1015,"Video is can not uploaded",HttpStatus.INTERNAL_SERVER_ERROR),
     VIDEO_PROCESSING_FAILED(1016,"Video processing faile",HttpStatus.INTERNAL_SERVER_ERROR),
+    ACCOUNT_IS_LOCKED(1017,"Account is temporary locked in 5 minute",HttpStatus.LOCKED),
+    PASSWORD_IS_EXPIRED(1018,"Password is expire .Please change password ensure account security",HttpStatus.BAD_REQUEST),
 
     INTERNAL_SERVER(9999,"Server error",HttpStatus.INTERNAL_SERVER_ERROR);
 

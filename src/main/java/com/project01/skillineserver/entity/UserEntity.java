@@ -4,6 +4,9 @@ import com.project01.skillineserver.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -25,4 +28,7 @@ public class UserEntity extends AbstractEntity <Long>{
     private boolean isDisable = false;
     private boolean isAccountNonExpired = true;
     private boolean isCredentialsNonExpired = true;
+    private Integer failedLoginAttempts = 0;
+    private Instant lockTime;
+    private Instant lastTimeChangePassword;
 }

@@ -3,6 +3,7 @@ package com.project01.skillineserver.service.Impl;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
 import com.project01.skillineserver.config.CustomUserDetail;
+import com.project01.skillineserver.constants.AppConstants;
 import com.project01.skillineserver.dto.reponse.AuthResponse;
 import com.project01.skillineserver.dto.request.LoginRequest;
 import com.project01.skillineserver.dto.request.RegisterRequest;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -49,15 +51,36 @@ public class AuthServiceImpl implements AuthService {
     private final EmailService emailService;
     private final RedisService redisService;
 
+
     @Override
     public AuthResponse login(LoginRequest loginRequest) {
+
         CustomUserDetail user = (CustomUserDetail) userDetailsService.loadUserByUsername(loginRequest.getUsername());
+        UserEntity userInDB = user.getUser();
+
+
+        if(!user.isAccountNonLocked()){
+            if(isAccountStillLocked(userInDB)){
+                throw new AppException(ErrorCode.ACCOUNT_IS_LOCKED);
+            }
+        }
+
+
         if (!(passwordEncoder.matches(loginRequest.getPassword(), user.getPassword()))) {
+            increaseAttemptLogin(userInDB);
             throw new AppException(ErrorCode.PASSWORD_WRONG);
         }
+
         if (!user.isEnabled()) {
             throw new AppException(ErrorCode.VERIFY_ACCOUNT);
         }
+
+        if(isPasswordExpire(userInDB)){
+                throw new AppException(ErrorCode.PASSWORD_IS_EXPIRED);
+        }
+
+        resetFailedAttempts(userInDB);
+
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
 
@@ -92,13 +115,13 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public String refreshToken(TokenRequest tokenRequest, Authentication authentication) {
-        log.info("type of token : {}",tokenRequest.getTokenType());
+        log.info("type of token : {}", tokenRequest.getTokenType());
         boolean check = introspect(tokenRequest, tokenRequest.getTokenType());
         if (!check) {
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }
 
-        if(!AuthenticationUtil.isAuthenticated(authentication)){
+        if (!AuthenticationUtil.isAuthenticated(authentication)) {
             throw new AppException(ErrorCode.UNAUTHORIZATED);
         }
 
@@ -149,6 +172,64 @@ public class AuthServiceImpl implements AuthService {
         SignedJWT signedJWT = SignedJWT.parse(token);
         String tokenId = signedJWT.getJWTClaimsSet().getJWTID();
         redisService.saveData(tokenId, token);
+    }
+
+    private void increaseAttemptLogin(UserEntity user) {
+        Integer countLoginFail = user.getFailedLoginAttempts();
+
+        if(countLoginFail==null){
+            countLoginFail = 0;
+        }
+
+        countLoginFail++;
+
+        if (countLoginFail >= AppConstants.MAX_FAILED_ATTEMPTS) {
+            user.setLockTime(Instant.now());
+            user.setLocked(false);
+        } else {
+            user.setFailedLoginAttempts(countLoginFail);
+        }
+        userRepository.save(user);
+    }
+
+    private void resetFailedAttempts(UserEntity user) {
+        if (user.getFailedLoginAttempts() != null && user.getFailedLoginAttempts() > 0) {
+            user.setFailedLoginAttempts(0);
+            userRepository.save(user);
+        }
+    }
+
+    private boolean isAccountStillLocked(UserEntity user) {
+        boolean isCheck = true;
+
+        if(user.getLockTime() == null){
+            return isCheck;
+        }
+
+        Instant now = Instant.now();
+        Instant unlockTime = user.getLockTime().plus(120, ChronoUnit.SECONDS);
+
+        if (now.isAfter(unlockTime)) {
+            user.setLocked(true);
+            user.setLockTime(null);
+            user.setFailedLoginAttempts(0);
+            isCheck = false;
+        }
+        return isCheck;
+    }
+
+    private boolean isPasswordExpire(UserEntity user){
+        Instant now = Instant.now();
+        Instant lastTimeChangePassword = null;
+        if ( user.getLastTimeChangePassword()!=null){
+            lastTimeChangePassword = Instant.now();
+        }
+        if(now.isAfter(lastTimeChangePassword.plus(AppConstants.CHANGE_PASSWORD_PERIODIC,ChronoUnit.SECONDS))){
+            user.setCredentialsNonExpired(false);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
     }
 
 }

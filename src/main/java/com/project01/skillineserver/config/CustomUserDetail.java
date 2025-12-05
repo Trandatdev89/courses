@@ -58,5 +58,4 @@ public class CustomUserDetail implements UserDetails {
         return user.isDisable();
     }
 
-
 }
