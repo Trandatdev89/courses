@@ -16,4 +16,5 @@ public interface AuthService {
     void createAccount(RegisterRequest registerRequest);
     void verifyAccount(String token,Long userId);
     void logout(String token) throws ParseException;
+    void forgotPassword(String email);
 }

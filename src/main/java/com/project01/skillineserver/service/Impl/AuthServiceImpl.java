@@ -17,6 +17,7 @@ import com.project01.skillineserver.excepion.CustomException.AppException;
 import com.project01.skillineserver.repository.UserRepository;
 import com.project01.skillineserver.service.AuthService;
 import com.project01.skillineserver.service.EmailService;
+import com.project01.skillineserver.service.UserService;
 import com.project01.skillineserver.utils.AuthenticationUtil;
 import com.project01.skillineserver.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
@@ -172,6 +173,14 @@ public class AuthServiceImpl implements AuthService {
         SignedJWT signedJWT = SignedJWT.parse(token);
         String tokenId = signedJWT.getJWTClaimsSet().getJWTID();
         redisService.saveData(tokenId, token);
+    }
+
+    @Override
+    public void forgotPassword(String email) {
+       boolean userExist = userRepository.existsByEmail(email);
+       if(!userExist){
+           throw new AppException(ErrorCode.USER_NOT_FOUND);
+       }
     }
 
     private void increaseAttemptLogin(UserEntity user) {

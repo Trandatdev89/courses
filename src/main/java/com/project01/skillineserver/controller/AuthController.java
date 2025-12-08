@@ -60,4 +60,16 @@ public class AuthController {
                 .code(200)
                 .build();
     }
+
+    @GetMapping(value = "/forgot-password")
+    public ApiResponse<?> forgotPassword(@RequestParam(name = "email") String email) {
+        authService.forgotPassword(email);
+        return ApiResponse.builder()
+                .message("Đổi mật khẩu thành công!")
+                .code(200)
+                .build();
+    }
+
+
+
 }

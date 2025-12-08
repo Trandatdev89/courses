@@ -11,7 +11,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -85,6 +88,22 @@ public class CourseController {
                 .code(200)
                 .message("Success")
                 .data(courseService.getCourseById(id))
+                .build();
+    }
+
+    @GetMapping(value = "/search-advance")
+    public ApiResponse<PageResponse<?>> searchAdvanceCourse(@RequestParam Map<String, Object> filters,
+                                                            @RequestParam(defaultValue = "0") int page,
+                                                            @RequestParam(defaultValue = "20") int size,
+                                                            @RequestParam(defaultValue = "id,desc") String sort) {
+
+        Map<String, Object> searchFilters = new HashMap<>(filters);
+        Arrays.asList("page", "size", "sort").forEach(searchFilters.keySet()::remove);
+
+        return ApiResponse.<PageResponse<?>>builder()
+                .data(courseService.searchAdvanceCourse(searchFilters,page,size,sort))
+                .code(200)
+                .message("Search course success!")
                 .build();
     }
 

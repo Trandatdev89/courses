@@ -12,6 +12,7 @@ import com.project01.skillineserver.mapper.CourseMapper;
 import com.project01.skillineserver.repository.CourseRepository;
 import com.project01.skillineserver.repository.EnrollmentRepository;
 import com.project01.skillineserver.repository.UserRepository;
+import com.project01.skillineserver.repository.custom.CustomCourseRepository;
 import com.project01.skillineserver.service.CourseService;
 import com.project01.skillineserver.utils.UploadUtil;
 import lombok.RequiredArgsConstructor;
@@ -27,10 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +39,7 @@ public class CourseServiceImpl implements CourseService {
     private final EnrollmentRepository enrollmentRepository;
     private final CourseMapper courseMapper;
     private final UploadUtil uploadUtil;
+    private final CustomCourseRepository customCourseRepository;
 
     @Override
     public List<CourseResponse> getAllByCategoryId(Long categoryId) {
@@ -61,7 +60,7 @@ public class CourseServiceImpl implements CourseService {
                 .flatMap(courseRepository::findById)
                 .orElse(new CourseEntity());
 
-        String pathImage = resolvePathFile(courseReq.thumbnail(),courseEntityInDB.getThumbnail_url());
+        String pathImage = resolvePathFile(courseReq.thumbnail(), courseEntityInDB.getThumbnail_url());
 
         courseEntityInDB.setCategoryId(courseReq.categoryId());
         courseEntityInDB.setDescription(courseReq.desc());
@@ -136,11 +135,17 @@ public class CourseServiceImpl implements CourseService {
                 .build();
     }
 
+    @Override
+    public PageResponse<CourseResponse> searchAdvanceCourse(Map<String, Object> filters, int page, int size, String sort) {
+        PageResponse<CourseResponse> pageResponse = customCourseRepository.searchAdvanceCourse(filters, page, size, sort);
+        return null;
+    }
+
     private String resolvePathFile(Object inputFile, String pathFile) throws IOException {
         if (inputFile instanceof MultipartFile multipartFile) {
-            return uploadUtil.createPathFile(multipartFile,FileType.IMAGE).toString();
-        }else{
-            return pathFile!=null ? pathFile : "";
+            return uploadUtil.createPathFile(multipartFile, FileType.IMAGE).toString();
+        } else {
+            return pathFile != null ? pathFile : "";
         }
     }
 }

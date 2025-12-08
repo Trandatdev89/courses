@@ -8,6 +8,7 @@ import com.project01.skillineserver.entity.UserEntity;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public interface CourseService {
     List<CourseResponse> getAllByCategoryId(Long categoryId);
@@ -18,4 +19,5 @@ public interface CourseService {
     List<CourseResponse> getListCourseById(List<Long> ids);
     List<CourseResponse> getCourseNotPagination();
     PageResponse<CourseResponse> getCourses(int page, int size, String sort, String keyword);
+    PageResponse<CourseResponse> searchAdvanceCourse(Map<String, Object> filters,int page,int size,String sort);
 }

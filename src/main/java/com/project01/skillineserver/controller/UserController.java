@@ -2,6 +2,7 @@ package com.project01.skillineserver.controller;
 
 import com.project01.skillineserver.config.CustomUserDetail;
 import com.project01.skillineserver.dto.ApiResponse;
+import com.project01.skillineserver.dto.request.ChangePasswordReq;
 import com.project01.skillineserver.dto.request.TokenRequest;
 import com.project01.skillineserver.entity.UserEntity;
 import com.project01.skillineserver.service.AuthService;
@@ -55,6 +56,16 @@ public class UserController {
         authService.logout(token);
         return ApiResponse.builder()
                 .message("Logout Success!")
+                .code(200)
+                .build();
+    }
+
+    @PostMapping(value = "/change-password")
+    @PreAuthorize("@authorizationService.isCanAccessApi()")
+    public ApiResponse<?> changePassword(@RequestBody ChangePasswordReq changePasswordReq,@AuthenticationPrincipal CustomUserDetail customUserDetail){
+        userService.changePassword(changePasswordReq,customUserDetail.getUser().getId());
+        return ApiResponse.builder()
+                .message("Change Password Success!")
                 .code(200)
                 .build();
     }
