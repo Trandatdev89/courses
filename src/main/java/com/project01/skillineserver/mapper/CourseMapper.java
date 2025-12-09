@@ -33,7 +33,7 @@ public class CourseMapper {
                 .id(courseEntity.getId())
                 .title(courseEntity.getTitle())
                 .thumbnail_url(DOMAIN_SERVER+path)
-                .categoryName(category.findById(courseEntity.getCategoryId()).get().getName())
+                .categoryName(courseEntity.getCategoryId()!=null? category.findById(courseEntity.getCategoryId()).get().getName() : null )
                 .level(courseEntity.getLevel())
                 .price(courseEntity.getPrice())
                 .description(courseEntity.getDescription())

@@ -5,8 +5,12 @@ import com.project01.skillineserver.dto.reponse.CourseResponse;
 import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.request.CourseReq;
 import com.project01.skillineserver.entity.CourseEntity;
+import com.project01.skillineserver.enums.LevelEnum;
+import com.project01.skillineserver.repository.CourseRepository;
 import com.project01.skillineserver.service.CourseService;
+import com.project01.skillineserver.specification.CourseSpecifications;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +26,8 @@ import java.util.Map;
 public class CourseController {
 
     private final CourseService courseService;
+    private final CourseSpecifications courseSpecifications;
+    private final CourseRepository courseRepository;
 
     @PostMapping(value = "/save")
     @PreAuthorize("@authorizationService.isAdmin()")
@@ -92,16 +98,44 @@ public class CourseController {
     }
 
     @GetMapping(value = "/search-advance")
-    public ApiResponse<PageResponse<?>> searchAdvanceCourse(@RequestParam Map<String, Object> filters,
-                                                            @RequestParam(defaultValue = "0") int page,
+    public ApiResponse<PageResponse<?>> searchAdvanceCourse(@RequestParam(defaultValue = "0") int page,
                                                             @RequestParam(defaultValue = "20") int size,
-                                                            @RequestParam(defaultValue = "id,desc") String sort) {
+                                                            @RequestParam(defaultValue = "id,desc") String sort,
+                                                            @RequestParam(required = false) String... search) {
 
-        Map<String, Object> searchFilters = new HashMap<>(filters);
-        Arrays.asList("page", "size", "sort").forEach(searchFilters.keySet()::remove);
 
         return ApiResponse.<PageResponse<?>>builder()
-                .data(courseService.searchAdvanceCourse(searchFilters,page,size,sort))
+                .data(courseService.searchAdvanceCourse(search,page,size,sort))
+                .code(200)
+                .message("Search course success!")
+                .build();
+    }
+
+    @GetMapping(value = "/search-with-specification")
+    public ApiResponse<?> searchWithSpecification(@RequestParam Map<String,Object> params){
+
+
+        Specification<CourseEntity> spec = Specification.where(null);
+
+        for (Map.Entry<String,Object> item : params.entrySet()){
+            String key = item.getKey();
+            Object value = item.getValue();
+            if(key.equals("categoryId")){
+                spec = spec.and(courseSpecifications.hasCategoryId(Long.parseLong(value.toString())));
+            }else if(key.contains("Start") || key.contains("End")){
+                spec = spec.and(courseSpecifications.hasFieldRange(key,value));
+            }
+            else{
+                spec = spec.and(courseSpecifications.hasField(key,value));
+            }
+        }
+
+
+
+        List<CourseEntity> list = courseRepository.findAll(spec);
+
+        return ApiResponse.builder()
+                .data(list)
                 .code(200)
                 .message("Search course success!")
                 .build();

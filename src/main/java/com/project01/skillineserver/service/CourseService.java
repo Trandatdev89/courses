@@ -19,5 +19,5 @@ public interface CourseService {
     List<CourseResponse> getListCourseById(List<Long> ids);
     List<CourseResponse> getCourseNotPagination();
     PageResponse<CourseResponse> getCourses(int page, int size, String sort, String keyword);
-    PageResponse<CourseResponse> searchAdvanceCourse(Map<String, Object> filters,int page,int size,String sort);
+    PageResponse<CourseResponse> searchAdvanceCourse(String[] search,int page,int size,String sort);
 }

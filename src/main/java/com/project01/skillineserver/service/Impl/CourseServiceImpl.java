@@ -14,12 +14,22 @@ import com.project01.skillineserver.repository.EnrollmentRepository;
 import com.project01.skillineserver.repository.UserRepository;
 import com.project01.skillineserver.repository.custom.CustomCourseRepository;
 import com.project01.skillineserver.service.CourseService;
+import com.project01.skillineserver.specification.SearchCriteria;
+import com.project01.skillineserver.specification.SearchSpecification;
 import com.project01.skillineserver.utils.UploadUtil;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +39,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +52,9 @@ public class CourseServiceImpl implements CourseService {
     private final CourseMapper courseMapper;
     private final UploadUtil uploadUtil;
     private final CustomCourseRepository customCourseRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     public List<CourseResponse> getAllByCategoryId(Long categoryId) {
@@ -136,9 +151,52 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public PageResponse<CourseResponse> searchAdvanceCourse(Map<String, Object> filters, int page, int size, String sort) {
-        PageResponse<CourseResponse> pageResponse = customCourseRepository.searchAdvanceCourse(filters, page, size, sort);
-        return null;
+    public PageResponse<CourseResponse> searchAdvanceCourse(String[] search, int page, int size, String sort) {
+
+        Pageable pageable = PageRequest.of(page-1,size);
+
+        Page<CourseEntity> listCourseResponses = null;
+        Specification<CourseEntity> specification = Specification.where(null);
+
+        if(search!=null && search.length > 0){
+
+            List<SearchCriteria> searchCriterias = new ArrayList<>();
+            Pattern pattern = Pattern.compile("(\\w+?)([<:>~!])(.*)(\\p{Punct}?)(\\p{Punct}?)");
+
+            for(String item : search){
+                Matcher matcher = pattern.matcher(item);
+                if(matcher.find()){
+                    searchCriterias.add(new SearchCriteria(matcher.group(1),matcher.group(2),matcher.group(3),matcher.group(4),matcher.group(5)));
+                }
+            }
+
+            for(SearchCriteria searchOpt : searchCriterias){
+
+                if(searchOpt.getKey().equals("categoryId")){
+                    specification = specification.and((root, query, criteriaBuilder) -> {
+                        return customCourseRepository.joinTableRelationOneMany(CourseEntity.class,CategoryEntity.class,root,criteriaBuilder, query,searchOpt);
+                    });
+                }else{
+                    specification = specification.and((root, query, criteriaBuilder) -> {
+                        return new SearchSpecification<CourseEntity>(searchOpt).toPredicate(root,query,criteriaBuilder);
+                    });
+                }
+            }
+
+            listCourseResponses = courseRepository.findAll(specification,pageable);
+
+        }else{
+            listCourseResponses = courseRepository.findAll(pageable);
+        }
+
+        return PageResponse.<CourseResponse>builder()
+                .list(listCourseResponses.getContent().stream().map(courseMapper::toLectureResponse).toList())
+                .size(size)
+                .page(page)
+                .totalPages(listCourseResponses.getTotalPages())
+                .totalElements(listCourseResponses.getTotalElements())
+                .build();
+
     }
 
     private String resolvePathFile(Object inputFile, String pathFile) throws IOException {

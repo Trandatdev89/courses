@@ -5,9 +5,13 @@ import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.entity.CourseEntity;
 import com.project01.skillineserver.mapper.CourseMapper;
 import com.project01.skillineserver.repository.custom.CustomCourseRepository;
+import com.project01.skillineserver.specification.SearchCriteria;
+import com.project01.skillineserver.specification.SearchSpecification;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+import jakarta.persistence.criteria.*;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -62,6 +66,13 @@ public class CustomCourseRepositoryImpl implements CustomCourseRepository {
                 .build();
     }
 
+    @Override
+    public <X, Y> Predicate joinTableRelationOneMany(Class<X> xClass, Class<Y> yClass, Root<X> root,
+                                                     CriteriaBuilder cb, CriteriaQuery<?> query, SearchCriteria searchCriteria) {
+        Join<X,Y> joinTable = root.join(yClass.getName().toLowerCase(),JoinType.INNER);
+
+        return new SearchSpecification<X>(searchCriteria).toPredicate((Root<X>) joinTable,query,cb);
+    }
 
     private void joinTableCourseWithCategory(Map<String, Object> filters, StringBuilder sb) {
         Object categoryId = filters.get("category_id");
@@ -137,6 +148,5 @@ public class CustomCourseRepositoryImpl implements CustomCourseRepository {
             return false;
         }
     }
-
 
 }
