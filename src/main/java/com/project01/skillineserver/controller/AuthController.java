@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
@@ -70,6 +71,13 @@ public class AuthController {
                 .build();
     }
 
-
+    @PostMapping(value = "/refresh-token")
+    public ApiResponse<String> refreshToken(@RequestBody TokenRequest tokenRequest) throws ParseException {
+        return ApiResponse.<String>builder()
+                .code(200)
+                .message("Refresh Token Success!")
+                .data(authService.refreshToken(tokenRequest))
+                .build();
+    }
 
 }

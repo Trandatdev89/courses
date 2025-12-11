@@ -93,6 +93,7 @@ public class AuthServiceImpl implements AuthService {
                 .username(user.getUsername())
                 .accessToken(securityUtil.generateToken(Objects.requireNonNull(AuthenticationUtil.getUserDetail()), TokenType.ACCESS_TOKEN))
                 .refreshToken(securityUtil.generateToken(Objects.requireNonNull(AuthenticationUtil.getUserDetail()), TokenType.REFRESH_TOKEN))
+                .role(user.getUser().getRole())
                 .build();
     }
 
@@ -115,16 +116,21 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String refreshToken(TokenRequest tokenRequest, Authentication authentication) {
+    public String refreshToken(TokenRequest tokenRequest) throws ParseException {
         log.info("type of token : {}", tokenRequest.getTokenType());
         boolean check = introspect(tokenRequest, tokenRequest.getTokenType());
         if (!check) {
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }
 
-        if (!AuthenticationUtil.isAuthenticated(authentication)) {
-            throw new AppException(ErrorCode.UNAUTHORIZATED);
-        }
+        String username = SecurityUtil.extractUsernameByToken(tokenRequest.getRefreshToken());
+
+        CustomUserDetail user = (CustomUserDetail)userDetailsService.loadUserByUsername(username);
+
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
+
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
         return securityUtil.generateToken(Objects.requireNonNull(AuthenticationUtil.getUserDetail()), TokenType.ACCESS_TOKEN);
     }

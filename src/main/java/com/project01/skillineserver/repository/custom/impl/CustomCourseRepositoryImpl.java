@@ -11,7 +11,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.*;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -35,7 +34,7 @@ public class CustomCourseRepositoryImpl implements CustomCourseRepository {
         StringBuilder sb = new StringBuilder("select co.id,co.title,co.price,co.level" +
                 ",co.thumbnail_url,co.rate,co.created_at,co.updated_at,co.category_id from courses co");
 
-        Map<String,Object> dataConvert = convertMap(filters);
+        Map<String, Object> dataConvert = convertMap(filters);
 
         if (dataConvert.containsKey("category_id")) {
             joinTableCourseWithCategory(dataConvert, sb);
@@ -50,7 +49,7 @@ public class CustomCourseRepositoryImpl implements CustomCourseRepository {
         );
         long totalElements = ((Number) countQuery.getSingleResult()).longValue();
 
-        sb.append(" limit "+ size +" offset "+ page * size);
+        sb.append(" limit " + size + " offset " + page * size);
 
         Query query = entityManager.createNativeQuery(sb.toString());
 
@@ -69,9 +68,9 @@ public class CustomCourseRepositoryImpl implements CustomCourseRepository {
     @Override
     public <X, Y> Predicate joinTableRelationOneMany(Class<X> xClass, Class<Y> yClass, Root<X> root,
                                                      CriteriaBuilder cb, CriteriaQuery<?> query, SearchCriteria searchCriteria) {
-        Join<X,Y> joinTable = root.join(yClass.getName().toLowerCase(),JoinType.INNER);
+        Join<X, Y> joinTable = root.join(yClass.getName().toLowerCase(), JoinType.INNER);
 
-        return new SearchSpecification<X>(searchCriteria).toPredicate((Root<X>) joinTable,query,cb);
+        return new SearchSpecification<X>(searchCriteria).toPredicate((Root<X>) joinTable, query, cb);
     }
 
     private void joinTableCourseWithCategory(Map<String, Object> filters, StringBuilder sb) {
@@ -88,13 +87,9 @@ public class CustomCourseRepositoryImpl implements CustomCourseRepository {
             String valueStr = value.toString();
             if (columnName.startsWith("price") || columnName.startsWith("rate")) {
                 querySpecial(columnName, value, sb);
-            }
-
-            else if (isNumeric(valueStr)) {
+            } else if (isNumeric(valueStr)) {
                 sb.append(" and co.").append(columnName).append("=").append(valueStr);
-            }
-
-            else {
+            } else {
                 sb.append(" and co.").append(columnName).append(" like '%").append(valueStr).append("%'");
             }
         }
@@ -125,13 +120,13 @@ public class CustomCourseRepositoryImpl implements CustomCourseRepository {
 
     }
 
-    private Map<String,Object> convertMap(Map<String, Object> filters) {
-        Map<String,Object> convertData = new HashMap<>();
+    private Map<String, Object> convertMap(Map<String, Object> filters) {
+        Map<String, Object> convertData = new HashMap<>();
         for (Map.Entry<String, Object> field : filters.entrySet()) {
             String columName = field.getKey();
             Object value = field.getValue();
             if (value != null && !value.toString().trim().isEmpty()) {
-                convertData.put(columName,value);
+                convertData.put(columName, value);
             }
         }
         return convertData;

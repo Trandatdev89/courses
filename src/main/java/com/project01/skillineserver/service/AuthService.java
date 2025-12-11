@@ -12,7 +12,7 @@ import java.text.ParseException;
 public interface AuthService {
     AuthResponse login(LoginRequest loginRequest);
     boolean introspect(TokenRequest tokenRequest, TokenType tokenType);
-    String refreshToken(TokenRequest tokenRequest, Authentication authentication) throws ParseException;
+    String refreshToken(TokenRequest tokenRequest) throws ParseException;
     void createAccount(RegisterRequest registerRequest);
     void verifyAccount(String token,Long userId);
     void logout(String token) throws ParseException;

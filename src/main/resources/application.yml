@@ -33,7 +33,7 @@ spring:
 
 
 jwt:
-  expirationAccess: 86400
+  expirationAccess: 60
   expirationRefresh: 1296000
   secretKeyAccess: LuNVqXkIK/leKNt+xBkwXK+K25U9cFa2E6v735ZSOQuEIF3B2bvwpEd9UDXiXsZ9SLC1kh4MyTaAxU6Vnq+NeQ==
   secretKeyRefresh: 5bh77qh5vEfCrE3gkrPenjdd5tkk0zmKnz1cDNpIc4w=

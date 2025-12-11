@@ -100,9 +100,9 @@ public class SecurityUtil {
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }
 
-//        if (redisService.existsKey(tokenId)) {
-//            throw new AppException(ErrorCode.ACCOUNT_IS_LOGOUT);
-//        }
+        if (redisService.existsKey(tokenId)) {
+            throw new AppException(ErrorCode.ACCOUNT_IS_LOGOUT);
+        }
         return signedJWT;
     }
 
@@ -129,5 +129,10 @@ public class SecurityUtil {
             stringObjectMap.put("loginAt", LocalDateTime.now().toString());
             stringObjectMap.put("typeToken", tokenType);
         };
+    }
+
+    public static String extractUsernameByToken(String token) throws ParseException {
+        SignedJWT signedJWT = SignedJWT.parse(token);
+        return signedJWT.getJWTClaimsSet().getIssuer();
     }
 }

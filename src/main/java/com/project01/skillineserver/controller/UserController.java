@@ -38,16 +38,6 @@ public class UserController {
                 .build();
     }
 
-    @PostMapping(value = "/refresh-token")
-    @PreAuthorize("@authorizationService.isCanAccessApi()")
-    public ApiResponse<String> refreshToken(@RequestBody TokenRequest tokenRequest, Authentication authentication) throws ParseException {
-        return ApiResponse.<String>builder()
-                .code(200)
-                .message("Refresh Token Success!")
-                .data(authService.refreshToken(tokenRequest,authentication))
-                .build();
-    }
-
     @GetMapping(value = "/logout")
     @PreAuthorize("@authorizationService.isCanAccessApi()")
     public ApiResponse<?> logout(HttpServletRequest request) throws ParseException {
