@@ -15,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -59,13 +60,24 @@ public class CourseController {
 
     @GetMapping(value = "/all")
     public ApiResponse<PageResponse<CourseResponse>> getCourses(@RequestParam(defaultValue = "0") int page,
-                                                              @RequestParam(defaultValue = "1000") int size,
-                                                              @RequestParam(required = false) String sort,
-                                                              @RequestParam(required = false) String keyword) {
+                                                                @RequestParam(defaultValue = "1000") int size,
+                                                                @RequestParam(required = false) String sort,
+                                                                @RequestParam(required = false) String keyword) {
         return ApiResponse.<PageResponse<CourseResponse>>builder()
                 .code(200)
                 .message("Success")
-                .data(courseService.getCourses(page,size,sort,keyword))
+                .data(courseService.getCourses(page, size, sort, keyword))
+                .build();
+    }
+
+    @GetMapping(value = "/cursor")
+    public ApiResponse<PageResponse<CourseResponse>> getCoursesWithCursor(@RequestParam LocalDateTime cursor, @RequestParam(required = false) String sort,
+                                                                          @RequestParam(required = false) String keyword, @RequestParam(defaultValue = "20") int size
+                                                                          ){
+        return ApiResponse.<PageResponse<CourseResponse>>builder()
+                .code(200)
+                .message("Success")
+                .data(courseService.getCoursesWithCursor(cursor, sort, keyword,size))
                 .build();
     }
 
@@ -105,31 +117,29 @@ public class CourseController {
 
 
         return ApiResponse.<PageResponse<?>>builder()
-                .data(courseService.searchAdvanceCourse(search,page,size,sort))
+                .data(courseService.searchAdvanceCourse(search, page, size, sort))
                 .code(200)
                 .message("Search course success!")
                 .build();
     }
 
     @GetMapping(value = "/search-with-specification")
-    public ApiResponse<?> searchWithSpecification(@RequestParam Map<String,Object> params){
+    public ApiResponse<?> searchWithSpecification(@RequestParam Map<String, Object> params) {
 
 
         Specification<CourseEntity> spec = Specification.where(null);
 
-        for (Map.Entry<String,Object> item : params.entrySet()){
+        for (Map.Entry<String, Object> item : params.entrySet()) {
             String key = item.getKey();
             Object value = item.getValue();
-            if(key.equals("categoryId")){
+            if (key.equals("categoryId")) {
                 spec = spec.and(courseSpecifications.hasCategoryId(Long.parseLong(value.toString())));
-            }else if(key.contains("Start") || key.contains("End")){
-                spec = spec.and(courseSpecifications.hasFieldRange(key,value));
-            }
-            else{
-                spec = spec.and(courseSpecifications.hasField(key,value));
+            } else if (key.contains("Start") || key.contains("End")) {
+                spec = spec.and(courseSpecifications.hasFieldRange(key, value));
+            } else {
+                spec = spec.and(courseSpecifications.hasField(key, value));
             }
         }
-
 
 
         List<CourseEntity> list = courseRepository.findAll(spec);

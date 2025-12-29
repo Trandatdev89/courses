@@ -2,17 +2,17 @@ spring:
   application:
     name: skilline-server
   datasource:
-    url: jdbc:mysql://localhost:6000/skiline?createDatabaseIfNotExist=true
-    username: tranquocdat
-    password: tranquocdat
+    url: jdbc:mysql://localhost:3306/skiline?createDatabaseIfNotExist=true
+    username: root
+    password: longga@12
   data:
     redis:
       host: localhost
       port: 6379
       ssl:
         enabled: false
-    mongodb:
-      uri: mongodb://root:root@localhost:27017/Chat-service?auth=admin
+#    mongodb:
+#      uri: mongodb://root:root@localhost:27017/Chat-service?auth=admin
 
   jpa:
     hibernate:

@@ -1,5 +1,6 @@
 package com.project01.skillineserver.dto.reponse;
 
+import com.project01.skillineserver.enums.Role;
 import lombok.*;
 
 @Getter
@@ -13,4 +14,5 @@ public class AuthResponse {
     private boolean authenticated;
     private String username;
     private Long userId;
+    private Role role;
 }
