@@ -23,6 +23,9 @@
             <column name="role" type="varchar(255)"/>
             <column name="is_account_non_expired" type="TINYINT(1)"/>
             <column name="is_credentials_non_expired" type="TINYINT(1)"/>
+            <column name="failed_login_attempts" type="int"/>
+            <column name="last_time_change_password" type="timestamp"/>
+            <column name="lock_time" type="timestamp"/>
         </createTable>
     </changeSet>
 

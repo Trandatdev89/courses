@@ -7,6 +7,7 @@ import com.project01.skillineserver.entity.CourseEntity;
 import com.project01.skillineserver.entity.UserEntity;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -20,4 +21,5 @@ public interface CourseService {
     List<CourseResponse> getCourseNotPagination();
     PageResponse<CourseResponse> getCourses(int page, int size, String sort, String keyword);
     PageResponse<CourseResponse> searchAdvanceCourse(String[] search,int page,int size,String sort);
+    PageResponse<CourseResponse> getCoursesWithCursor(LocalDateTime cursor,String sort,String keyword,int size);
 }

@@ -16,6 +16,7 @@ import com.project01.skillineserver.repository.custom.CustomCourseRepository;
 import com.project01.skillineserver.service.CourseService;
 import com.project01.skillineserver.specification.SearchCriteria;
 import com.project01.skillineserver.specification.SearchSpecification;
+import com.project01.skillineserver.utils.JavaUtil;
 import com.project01.skillineserver.utils.UploadUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -38,6 +39,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -199,6 +201,16 @@ public class CourseServiceImpl implements CourseService {
 
     }
 
+    @Override
+    public PageResponse<CourseResponse> getCoursesWithCursor(LocalDateTime cursor, String sort, String keyword,int size) {
+
+//        Map<String,String> sortField = JavaUtil.extractFieldToMap(sort);
+//        Map<String,String> keywordField = JavaUtil.extractFieldToMap(keyword);
+//
+//        Page<CourseEntity> pages = courseRepository.findAllByCursor(cursor,sortField.get,keywordField,size);
+        return null;
+    }
+
     private String resolvePathFile(Object inputFile, String pathFile) throws IOException {
         if (inputFile instanceof MultipartFile multipartFile) {
             return uploadUtil.createPathFile(multipartFile, FileType.IMAGE).toString();
@@ -206,4 +218,7 @@ public class CourseServiceImpl implements CourseService {
             return pathFile != null ? pathFile : "";
         }
     }
+
+
+
 }

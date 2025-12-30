@@ -91,6 +91,7 @@ public class AuthServiceImpl implements AuthService {
                 .authenticated(true)
                 .userId(user.getUser().getId())
                 .username(user.getUsername())
+                .role(user.getUser().getRole())
                 .accessToken(securityUtil.generateToken(Objects.requireNonNull(AuthenticationUtil.getUserDetail()), TokenType.ACCESS_TOKEN))
                 .refreshToken(securityUtil.generateToken(Objects.requireNonNull(AuthenticationUtil.getUserDetail()), TokenType.REFRESH_TOKEN))
                 .role(user.getUser().getRole())
@@ -142,6 +143,10 @@ public class AuthServiceImpl implements AuthService {
             throw new AppException(ErrorCode.USER_EXITED);
         }
 
+        if (userRepository.existsByEmail(registerDTO.getUsername())) {
+            throw new AppException(ErrorCode.EMAIL_EXITED);
+        }
+
         UserEntity user = new UserEntity();
         user.setUsername(registerDTO.getUsername());
         user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
@@ -149,6 +154,8 @@ public class AuthServiceImpl implements AuthService {
         user.setEmail(registerDTO.getEmail());
         user.setFullname(registerDTO.getFullname());
         user.setPhone(registerDTO.getPhone());
+        user.setLastTimeChangePassword(Instant.now());
+        user.setLockTime(Instant.now());
         user.setRole(Role.USER);
 
         UserEntity userCreated = userRepository.save(user);
