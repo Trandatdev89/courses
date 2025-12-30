@@ -30,6 +30,7 @@ public enum ErrorCode {
     VIDEO_PROCESSING_FAILED(1016,"Video processing faile",HttpStatus.INTERNAL_SERVER_ERROR),
     ACCOUNT_IS_LOCKED(1017,"Account is temporary locked in 5 minute",HttpStatus.LOCKED),
     PASSWORD_IS_EXPIRED(1018,"Password is expire .Please change password ensure account security",HttpStatus.BAD_REQUEST),
+    ACCOUNT_LOGINED(1019,"Account is logined from divice other",HttpStatus.LOCKED),
 
     INTERNAL_SERVER(9999,"Server error",HttpStatus.INTERNAL_SERVER_ERROR);
 

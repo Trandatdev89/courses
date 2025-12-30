@@ -25,11 +25,11 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping(value = "/login")
-    public ApiResponse<AuthResponse> login(@RequestBody LoginRequest loginRequest) {
+    public ApiResponse<AuthResponse> login(@RequestBody LoginRequest loginRequest,HttpServletRequest request) {
         return ApiResponse.<AuthResponse>builder()
                 .code(200)
                 .message("Login Successful !")
-                .data(authService.login(loginRequest))
+                .data(authService.login(loginRequest,request))
                 .build();
     }
 

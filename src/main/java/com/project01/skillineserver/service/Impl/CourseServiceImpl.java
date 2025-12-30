@@ -3,7 +3,9 @@ package com.project01.skillineserver.service.Impl;
 import com.project01.skillineserver.dto.reponse.CourseResponse;
 import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.request.CourseReq;
-import com.project01.skillineserver.entity.*;
+import com.project01.skillineserver.entity.CategoryEntity;
+import com.project01.skillineserver.entity.CourseEntity;
+import com.project01.skillineserver.entity.EnrollmentEntity;
 import com.project01.skillineserver.enums.ErrorCode;
 import com.project01.skillineserver.enums.FileType;
 import com.project01.skillineserver.enums.SortField;
@@ -11,19 +13,13 @@ import com.project01.skillineserver.excepion.CustomException.AppException;
 import com.project01.skillineserver.mapper.CourseMapper;
 import com.project01.skillineserver.repository.CourseRepository;
 import com.project01.skillineserver.repository.EnrollmentRepository;
-import com.project01.skillineserver.repository.UserRepository;
 import com.project01.skillineserver.repository.custom.CustomCourseRepository;
 import com.project01.skillineserver.service.CourseService;
 import com.project01.skillineserver.specification.SearchCriteria;
 import com.project01.skillineserver.specification.SearchSpecification;
-import com.project01.skillineserver.utils.JavaUtil;
 import com.project01.skillineserver.utils.UploadUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -37,10 +33,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -155,39 +152,39 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public PageResponse<CourseResponse> searchAdvanceCourse(String[] search, int page, int size, String sort) {
 
-        Pageable pageable = PageRequest.of(page-1,size);
+        Pageable pageable = PageRequest.of(page - 1, size);
 
         Page<CourseEntity> listCourseResponses = null;
         Specification<CourseEntity> specification = Specification.where(null);
 
-        if(search!=null && search.length > 0){
+        if (search != null && search.length > 0) {
 
             List<SearchCriteria> searchCriterias = new ArrayList<>();
             Pattern pattern = Pattern.compile("(\\w+?)([<:>~!])(.*)(\\p{Punct}?)(\\p{Punct}?)");
 
-            for(String item : search){
+            for (String item : search) {
                 Matcher matcher = pattern.matcher(item);
-                if(matcher.find()){
-                    searchCriterias.add(new SearchCriteria(matcher.group(1),matcher.group(2),matcher.group(3),matcher.group(4),matcher.group(5)));
+                if (matcher.find()) {
+                    searchCriterias.add(new SearchCriteria(matcher.group(1), matcher.group(2), matcher.group(3), matcher.group(4), matcher.group(5)));
                 }
             }
 
-            for(SearchCriteria searchOpt : searchCriterias){
+            for (SearchCriteria searchOpt : searchCriterias) {
 
-                if(searchOpt.getKey().equals("categoryId")){
+                if (searchOpt.getKey().equals("categoryId")) {
                     specification = specification.and((root, query, criteriaBuilder) -> {
-                        return customCourseRepository.joinTableRelationOneMany(CourseEntity.class,CategoryEntity.class,root,criteriaBuilder, query,searchOpt);
+                        return customCourseRepository.joinTableRelationOneMany(CourseEntity.class, CategoryEntity.class, root, criteriaBuilder, query, searchOpt);
                     });
-                }else{
+                } else {
                     specification = specification.and((root, query, criteriaBuilder) -> {
-                        return new SearchSpecification<CourseEntity>(searchOpt).toPredicate(root,query,criteriaBuilder);
+                        return new SearchSpecification<CourseEntity>(searchOpt).toPredicate(root, query, criteriaBuilder);
                     });
                 }
             }
 
-            listCourseResponses = courseRepository.findAll(specification,pageable);
+            listCourseResponses = courseRepository.findAll(specification, pageable);
 
-        }else{
+        } else {
             listCourseResponses = courseRepository.findAll(pageable);
         }
 
@@ -202,7 +199,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public PageResponse<CourseResponse> getCoursesWithCursor(LocalDateTime cursor, String sort, String keyword,int size) {
+    public PageResponse<CourseResponse> getCoursesWithCursor(LocalDateTime cursor, String sort, String keyword, int size) {
 
 //        Map<String,String> sortField = JavaUtil.extractFieldToMap(sort);
 //        Map<String,String> keywordField = JavaUtil.extractFieldToMap(keyword);
@@ -218,7 +215,6 @@ public class CourseServiceImpl implements CourseService {
             return pathFile != null ? pathFile : "";
         }
     }
-
 
 
 }

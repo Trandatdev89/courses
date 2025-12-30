@@ -15,5 +15,6 @@
     <include file="db.changelog/changeset/create-course-progress-table.xml"/>
     <include file="db.changelog/changeset/create-reviews-table.xml"/>
     <include file="db.changelog/changeset/insert/insert-user-table.xml"/>
+    <include file="db.changelog/changeset/create-user-devices-table.xml"/>
 
 </databaseChangeLog>

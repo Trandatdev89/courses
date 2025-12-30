@@ -6,10 +6,12 @@ import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jose.util.Base64;
 import com.nimbusds.jwt.SignedJWT;
 import com.project01.skillineserver.config.CustomUserDetail;
+import com.project01.skillineserver.entity.UserDevice;
 import com.project01.skillineserver.entity.UserEntity;
 import com.project01.skillineserver.enums.ErrorCode;
 import com.project01.skillineserver.enums.TokenType;
 import com.project01.skillineserver.excepion.CustomException.AppException;
+import com.project01.skillineserver.repository.UserDeviceRepository;
 import com.project01.skillineserver.service.Impl.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -32,6 +34,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -64,7 +67,10 @@ public class SecurityUtil {
     @Autowired
     private RedisService redisService;
 
-    public String generateToken(CustomUserDetail customUserDetail, TokenType tokenType) {
+    @Autowired
+    private UserDeviceRepository userDeviceRepository;
+
+    public String generateToken(CustomUserDetail customUserDetail, TokenType tokenType,String deviceId) {
         JwsHeader jwsHeader = JwsHeader.with(MacAlgorithm.HS256).build();
 
 
@@ -72,7 +78,7 @@ public class SecurityUtil {
                 .subject(customUserDetail.getUser().getId().toString())
                 .issuedAt(Instant.now())
                 .expiresAt(Instant.now().plus(tokenType.equals(TokenType.ACCESS_TOKEN) ? expirationAccess : expirationRefresh, ChronoUnit.SECONDS))
-                .claims(setClaims(customUserDetail,tokenType))
+                .claims(setClaims(customUserDetail,tokenType,deviceId))
                 .issuer(customUserDetail.getUsername())
                 .id(UUID.randomUUID().toString())
                 .build();
@@ -95,6 +101,7 @@ public class SecurityUtil {
                 ? secretKey() : secretRefreshKey());
         boolean verified = signedJWT.verify(verifier);
         String tokenId = signedJWT.getJWTClaimsSet().getJWTID();
+        String deviceIdFromToken = signedJWT.getJWTClaimsSet().getClaim("deviceId").toString();
 
         if (!(verified && signedJWT.getJWTClaimsSet().getExpirationTime().after(new Date()))) {
             throw new AppException(ErrorCode.INVALID_TOKEN);
@@ -103,6 +110,12 @@ public class SecurityUtil {
         if (redisService.existsKey(tokenId)) {
             throw new AppException(ErrorCode.ACCOUNT_IS_LOGOUT);
         }
+
+        Optional<UserDevice> device = userDeviceRepository.findByDeviceId(deviceIdFromToken);
+        if(device.isEmpty() || !device.get().isActive()){
+            throw new AppException(ErrorCode.ACCOUNT_LOGINED);
+        }
+
         return signedJWT;
     }
 
@@ -123,11 +136,14 @@ public class SecurityUtil {
                 .collect(Collectors.joining(" "));
     }
 
-    private Consumer<Map<String, Object>> setClaims(CustomUserDetail customUserDetail,TokenType tokenType) {
+    private Consumer<Map<String, Object>> setClaims(CustomUserDetail customUserDetail,TokenType tokenType,String deviceId) {
         return stringObjectMap -> {
             stringObjectMap.put("scope", getAuthorities(customUserDetail));
             stringObjectMap.put("loginAt", LocalDateTime.now().toString());
             stringObjectMap.put("typeToken", tokenType);
+            if(deviceId!=null){
+                stringObjectMap.put("deviceId", deviceId);
+            }
         };
     }
 

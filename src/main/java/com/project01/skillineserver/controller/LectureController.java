@@ -43,7 +43,6 @@ public class LectureController {
     }
 
     @GetMapping(value = "/stream/{id}")
-    @PreAuthorize("@authorizationService.isCanAccessApi()")
     public ResponseEntity<Resource> streamLecture(@PathVariable String id) throws IOException {
         return lectureService.streamBasicVideo(id);
     }
@@ -55,7 +54,6 @@ public class LectureController {
     }
 
     @GetMapping("/stream/{videoId}/master.m3u8")
-    @PreAuthorize("@authorizationService.isCanAccessApi()")
     public ResponseEntity<Resource> streamMasterPlaylist(@PathVariable String videoId) {
         try {
             Path playlistPath = Paths.get(HLS_DIR, videoId, "master.m3u8");
@@ -79,7 +77,6 @@ public class LectureController {
 
     // Stream video segments (.ts files)
     @GetMapping("/stream/{videoId}/{segmentName:.+\\.ts}")
-    @PreAuthorize("@authorizationService.isCanAccessApi()")
     public ResponseEntity<Resource> streamSegment(
             @PathVariable String videoId,
             @PathVariable String segmentName) {

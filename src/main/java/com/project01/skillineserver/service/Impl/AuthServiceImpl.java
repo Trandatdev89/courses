@@ -9,17 +9,20 @@ import com.project01.skillineserver.dto.request.LoginRequest;
 import com.project01.skillineserver.dto.request.RegisterRequest;
 import com.project01.skillineserver.dto.request.TokenRequest;
 import com.project01.skillineserver.dto.request.VerifyAccountRequest;
+import com.project01.skillineserver.entity.UserDevice;
 import com.project01.skillineserver.entity.UserEntity;
 import com.project01.skillineserver.enums.ErrorCode;
 import com.project01.skillineserver.enums.Role;
 import com.project01.skillineserver.enums.TokenType;
 import com.project01.skillineserver.excepion.CustomException.AppException;
+import com.project01.skillineserver.repository.UserDeviceRepository;
 import com.project01.skillineserver.repository.UserRepository;
 import com.project01.skillineserver.service.AuthService;
 import com.project01.skillineserver.service.EmailService;
 import com.project01.skillineserver.service.UserService;
 import com.project01.skillineserver.utils.AuthenticationUtil;
 import com.project01.skillineserver.utils.SecurityUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,10 +34,15 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -51,10 +59,11 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final RedisService redisService;
+    private final UserDeviceRepository userDeviceRepository;
 
 
     @Override
-    public AuthResponse login(LoginRequest loginRequest) {
+    public AuthResponse login(LoginRequest loginRequest,HttpServletRequest request) {
 
         CustomUserDetail user = (CustomUserDetail) userDetailsService.loadUserByUsername(loginRequest.getUsername());
         UserEntity userInDB = user.getUser();
@@ -82,6 +91,50 @@ public class AuthServiceImpl implements AuthService {
 
         resetFailedAttempts(userInDB);
 
+        String currentDeviceId;
+        if (loginRequest.getDeviceFingerprint() != null && !loginRequest.getDeviceFingerprint().isEmpty()) {
+            currentDeviceId = loginRequest.getDeviceFingerprint(); // ← TỪ FRONTEND
+        } else {
+            currentDeviceId = createDeviceIdFromHeaders(request); // ← FALLBACK: từ headers
+        }
+
+        Optional<UserDevice> existingDevice = userDeviceRepository
+                .findByUserIdAndIsActive(userInDB.getId(), true);
+
+        if (existingDevice.isPresent()) {
+            UserDevice device = existingDevice.get();
+
+            // 3. So sánh thiết bị cũ với thiết bị hiện tại
+            if (!device.getDeviceId().equals(currentDeviceId)) {
+                // Khác thiết bị → Kick thiết bị cũ
+                device.setActive(false);
+                userDeviceRepository.save(device);
+
+                log.info("Kicked old device for user: {}", userInDB.getId());
+            } else {
+                // Cùng thiết bị → Cập nhật thời gian
+                device.setLastLogin(LocalDateTime.now());
+                device.setIpAddress(getClientIP(request));
+                userDeviceRepository.save(device);
+            }
+        }
+
+        UserDevice newDevice = userDeviceRepository.findByDeviceId(currentDeviceId)
+                .orElse(new UserDevice());
+
+        newDevice.setUserId(userInDB.getId());
+        newDevice.setDeviceId(currentDeviceId);
+        newDevice.setIpAddress(getClientIP(request));
+        newDevice.setUserAgent(request.getHeader("User-Agent"));
+        newDevice.setLastLogin(LocalDateTime.now());
+        newDevice.setActive(true);
+
+        if (newDevice.getFirstLogin() == null) {
+            newDevice.setFirstLogin(LocalDateTime.now());
+        }
+
+        userDeviceRepository.save(newDevice);
+
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
 
@@ -92,10 +145,54 @@ public class AuthServiceImpl implements AuthService {
                 .userId(user.getUser().getId())
                 .username(user.getUsername())
                 .role(user.getUser().getRole())
-                .accessToken(securityUtil.generateToken(Objects.requireNonNull(AuthenticationUtil.getUserDetail()), TokenType.ACCESS_TOKEN))
-                .refreshToken(securityUtil.generateToken(Objects.requireNonNull(AuthenticationUtil.getUserDetail()), TokenType.REFRESH_TOKEN))
+                .deviceId(currentDeviceId)
+                .accessToken(securityUtil.generateToken(Objects.requireNonNull(AuthenticationUtil.getUserDetail()), TokenType.ACCESS_TOKEN,currentDeviceId))
+                .refreshToken(securityUtil.generateToken(Objects.requireNonNull(AuthenticationUtil.getUserDetail()), TokenType.REFRESH_TOKEN,null))
                 .role(user.getUser().getRole())
                 .build();
+    }
+
+    private String createDeviceIdFromHeaders(HttpServletRequest request) {
+        // Kết hợp nhiều headers hơn
+        String userAgent = request.getHeader("User-Agent");
+        String acceptLanguage = request.getHeader("Accept-Language");
+        String acceptEncoding = request.getHeader("Accept-Encoding");
+        String accept = request.getHeader("Accept");
+
+        String rawData = userAgent + "|" + acceptLanguage + "|" + acceptEncoding + "|" + accept;
+
+        return hash(rawData);
+    }
+
+    private String hash(String data) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(data.getBytes(StandardCharsets.UTF_8));
+            return bytesToHex(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error creating hash", e);
+        }
+    }
+
+    private String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+
+    private String getClientIP(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null || ip.isEmpty()) {
+            ip = request.getHeader("X-Real-IP");
+        }
+        if (ip == null || ip.isEmpty()) {
+            ip = request.getRemoteAddr();
+        }
+        return ip;
     }
 
     @Override
@@ -133,7 +230,7 @@ public class AuthServiceImpl implements AuthService {
 
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-        return securityUtil.generateToken(Objects.requireNonNull(AuthenticationUtil.getUserDetail()), TokenType.ACCESS_TOKEN);
+        return securityUtil.generateToken(Objects.requireNonNull(AuthenticationUtil.getUserDetail()), TokenType.ACCESS_TOKEN,null);
     }
 
 
