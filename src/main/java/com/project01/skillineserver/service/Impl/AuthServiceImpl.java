@@ -253,7 +253,7 @@ public class AuthServiceImpl implements AuthService {
         user.setPhone(registerDTO.getPhone());
         user.setLastTimeChangePassword(Instant.now());
         user.setLockTime(Instant.now());
-        user.setRole(Role.USER);
+        user.setRole(registerDTO.getRole());
 
         UserEntity userCreated = userRepository.save(user);
 

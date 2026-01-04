@@ -111,7 +111,7 @@ public class CourseServiceImpl implements CourseService {
                     .userId(userId)
                     .courseId(courseId)
                     .enrolledAt(Instant.now())
-                    .progress(0l)
+                    .progress(0L)
                     .build();
             enrollmentEntities.add(enrollmentEntity);
         }

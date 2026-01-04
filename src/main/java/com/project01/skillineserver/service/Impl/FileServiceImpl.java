@@ -81,7 +81,7 @@ public class FileServiceImpl implements FileService {
                 pathLectureInDB, outputPath, outputPath
         );
 
-        ProcessBuilder processBuilder = new ProcessBuilder("/bin/bash", "-c", ffmpegCmd);
+        ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c", ffmpegCmd);
         processBuilder.inheritIO();
 
         Process process = processBuilder.start();

@@ -45,7 +45,7 @@ import org.springframework.web.filter.CorsFilter;
 public class WebSecurityConfig {
 
     private static final String[] PUBLIC_ENTRYPOINT = {"/auth/**", "/file/**", "/chat/**",
-            "/vnpay-payment/**", "/api/lecture/**", "/api/course/**"};
+            "/vnpay-payment/**", "/api/lecture/**", "/api/course/**","/api/push/**"};
 
     @Lazy
     @Autowired

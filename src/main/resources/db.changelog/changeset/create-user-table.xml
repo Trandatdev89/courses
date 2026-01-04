@@ -29,7 +29,12 @@
         </createTable>
     </changeSet>
 
-
+    <changeSet id="55" author="datmacay_v1">
+        <modifyDataType
+                tableName="users"
+                columnName="role"
+                newDataType="VARCHAR(20)"/>
+    </changeSet>
 
 
 </databaseChangeLog>

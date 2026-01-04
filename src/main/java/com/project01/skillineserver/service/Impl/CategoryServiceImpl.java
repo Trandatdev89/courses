@@ -60,7 +60,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public PageResponse<CategoryResponse> getCategoryPagination(int page, int size, String sort, String keyword) {
-        Sort sortField =  Sort.by(Sort.Direction.DESC,"createdAt");
+        Sort sortField =  Sort.by(Sort.Direction.DESC,"createAt");
 
         if(sort!=null && keyword!=null){
             sortField = SortField.ASC.getValue().equalsIgnoreCase(sort)
