@@ -13,6 +13,8 @@ import nl.martijndwars.webpush.Notification;
 import nl.martijndwars.webpush.PushService;
 import nl.martijndwars.webpush.Subscription;
 import nl.martijndwars.webpush.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PushNotificationServiceImpl implements PushNotificationService {
 
+    private static final Logger log = LoggerFactory.getLogger(PushNotificationServiceImpl.class);
     private final UserSubscriptionRepository userSubscriptionRepository;
     private final ObjectMapper objectMapper;
     private final PushService pushService;
@@ -56,6 +59,22 @@ public class PushNotificationServiceImpl implements PushNotificationService {
     }
 
     @Override
+    public void unsubscribe(Long userId, PushSubscription pushSubscription) {
+        if (pushSubscription == null) {
+            throw new AppException(ErrorCode.INTERNAL_SERVER);
+        }
+
+        UserSubscription userSubscriptions =  userSubscriptionRepository
+                .findByUserIdAndEndpoint(userId,pushSubscription.getEndpoint())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_SUBSCRIPTION_EMPTY));
+
+        userSubscriptionRepository.delete(userSubscriptions);
+
+        log.info("Unsubscribed user {} from endpoint {}", userId, pushSubscription.getEndpoint());
+
+    }
+
+    @Override
     public void sendNotification(Long userId, String title, String body) {
         List<UserSubscription> userSubscriptions = userSubscriptionRepository.findByUserId(userId);
         try {
@@ -83,6 +102,11 @@ public class PushNotificationServiceImpl implements PushNotificationService {
         } catch (Exception e) {
             System.err.println("Error sending notification: " + e.getMessage());
         }
+    }
+
+    @Override
+    public void sendNotificationForAllUser(String title, String body) {
+
     }
 
     @PostConstruct

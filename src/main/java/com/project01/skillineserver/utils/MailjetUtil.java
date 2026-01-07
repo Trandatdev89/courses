@@ -7,6 +7,8 @@ import com.mailjet.client.transactional.SendContact;
 import com.mailjet.client.transactional.SendEmailsRequest;
 import com.mailjet.client.transactional.TransactionalEmail;
 import com.mailjet.client.transactional.response.SendEmailsResponse;
+import com.project01.skillineserver.repository.TemplateMailRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class MailjetUtil {
 
     @Value("${mailjet.api-key}")
@@ -23,6 +26,8 @@ public class MailjetUtil {
     @Value("${mailjet.api-secretKey}")
     @NonFinal
     private String apiSecretKey;
+
+    private final TemplateMailRepository templateMailRepository;
 
     public void sendMailWithMailjet(String toEmail,
                                     String toName,

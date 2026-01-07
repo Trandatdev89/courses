@@ -14,7 +14,7 @@ public interface AuthService {
     AuthResponse login(LoginRequest loginRequest, HttpServletRequest request);
     boolean introspect(TokenRequest tokenRequest, TokenType tokenType);
     String refreshToken(TokenRequest tokenRequest) throws ParseException;
-    void createAccount(RegisterRequest registerRequest);
+    void createAccount(RegisterRequest registerRequest) throws IllegalAccessException;
     void verifyAccount(String token,Long userId);
     void logout(String token) throws ParseException;
     void forgotPassword(String email);

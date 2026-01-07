@@ -235,7 +235,7 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public void createAccount(RegisterRequest registerDTO) {
+    public void createAccount(RegisterRequest registerDTO) throws IllegalAccessException {
         if (userRepository.existsByUsername(registerDTO.getUsername())) {
             throw new AppException(ErrorCode.USER_EXITED);
         }

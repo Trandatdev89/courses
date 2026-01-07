@@ -34,6 +34,14 @@ public class PushController {
         return ResponseEntity.ok("Subscribed successfully");
     }
 
+    @PostMapping("/unsubscribe")
+    public ResponseEntity<String> unsubscribe(
+            @RequestParam Long userId,
+            @RequestBody PushSubscription subscription) {
+        pushNotificationService.unsubscribe(userId, subscription);
+        return ResponseEntity.ok("Subscribed successfully");
+    }
+
     // Gửi notification (API test)
     @PostMapping("/send")
     public ResponseEntity<String> sendNotification(
@@ -44,5 +52,11 @@ public class PushController {
         return ResponseEntity.ok("Notification sent");
     }
 
-
+    @GetMapping("/send-all-user")
+    public ResponseEntity<String> sendNotificationForAllUser(
+            @RequestParam String title,
+            @RequestParam String body) {
+        pushNotificationService.sendNotificationForAllUser(title, body);
+        return ResponseEntity.ok("Notification sent");
+    }
 }

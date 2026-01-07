@@ -64,8 +64,8 @@ public class SecurityUtil {
     @Value("${jwt.expirationRefresh}")
     private long expirationRefresh;
 
-//    @Autowired
-//    private RedisService redisService;
+    @Autowired
+    private RedisService redisService;
 
     @Autowired
     private UserDeviceRepository userDeviceRepository;
@@ -107,9 +107,9 @@ public class SecurityUtil {
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }
 
-//        if (redisService.existsKey(tokenId)) {
-//            throw new AppException(ErrorCode.ACCOUNT_IS_LOGOUT);
-//        }
+        if (redisService.existsKey(tokenId)) {
+            throw new AppException(ErrorCode.ACCOUNT_IS_LOGOUT);
+        }
 
         Optional<UserDevice> device = userDeviceRepository.findByDeviceId(deviceIdFromToken);
         if(device.isEmpty() || !device.get().isActive()){

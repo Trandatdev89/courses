@@ -45,7 +45,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ApiResponse<?> register(@RequestBody RegisterRequest registerDTO) {
+    public ApiResponse<?> register(@RequestBody RegisterRequest registerDTO) throws IllegalAccessException {
         authService.createAccount(registerDTO);
         return ApiResponse.builder()
                 .message("Hãy xác thực tài khoản bằng email")
