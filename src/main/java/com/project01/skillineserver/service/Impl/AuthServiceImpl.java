@@ -11,6 +11,7 @@ import com.project01.skillineserver.dto.request.TokenRequest;
 import com.project01.skillineserver.dto.request.VerifyAccountRequest;
 import com.project01.skillineserver.entity.UserDevice;
 import com.project01.skillineserver.entity.UserEntity;
+import com.project01.skillineserver.enums.EmailType;
 import com.project01.skillineserver.enums.ErrorCode;
 import com.project01.skillineserver.enums.Role;
 import com.project01.skillineserver.enums.TokenType;
@@ -74,7 +75,6 @@ public class AuthServiceImpl implements AuthService {
                 throw new AppException(ErrorCode.ACCOUNT_IS_LOCKED);
             }
         }
-
 
         if (!(passwordEncoder.matches(loginRequest.getPassword(), user.getPassword()))) {
             increaseAttemptLogin(userInDB);
@@ -257,12 +257,13 @@ public class AuthServiceImpl implements AuthService {
 
         UserEntity userCreated = userRepository.save(user);
 
-
         emailService.verifyAccount(VerifyAccountRequest.builder()
                 .token(UUID.randomUUID().toString())
                 .linkUrl(verifyAccountUrl)
                 .userId(userCreated.getId())
-                .email(userCreated.getEmail())
+                .toEmail(userCreated.getEmail())
+                .emailType(EmailType.VERIFY_ACCOUNT)
+                .toName(registerDTO.getFullname())
                 .build());
     }
 

@@ -25,7 +25,7 @@ public class CategoryController {
     public ApiResponse<?> save(@ModelAttribute CategoryReq categoryReq) throws IOException {
         categoryService.save(categoryReq);
         return ApiResponse.builder()
-                .message("Save Category")
+                .message("Save Category success!")
                 .code(200)
                 .build();
     }
@@ -35,16 +35,7 @@ public class CategoryController {
     public ApiResponse<?> deleteCategory(@PathVariable List<Long> ids){
         categoryService.delete(ids);
         return ApiResponse.builder()
-                .message("Save Category")
-                .code(200)
-                .build();
-    }
-
-    @GetMapping
-    public ApiResponse<List<CategoryResponse>> getCategories(){
-        return ApiResponse.<List<CategoryResponse>>builder()
-                .message("Save Category")
-                .data(categoryService.getCategories())
+                .message("Delete Category success!")
                 .code(200)
                 .build();
     }
@@ -55,7 +46,7 @@ public class CategoryController {
                                                                              @RequestParam(required = false) String sort,
                                                                              @RequestParam(required = false) String keyword){
         return ApiResponse.<PageResponse<CategoryResponse>>builder()
-                .message("Save Category")
+                .message("Get Categories success!")
                 .data(categoryService.getCategoryPagination(page,size,sort,keyword))
                 .code(200)
                 .build();

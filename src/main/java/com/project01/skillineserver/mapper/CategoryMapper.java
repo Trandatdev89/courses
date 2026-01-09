@@ -14,7 +14,7 @@ public class CategoryMapper {
     @Value("${domain.server}")
     private String DOMAIN_SERVER;
 
-    public CategoryResponse toLectureResponse(CategoryEntity category) {
+    public CategoryResponse toCategoriesResponse(CategoryEntity category) {
 
         String urlThumbnail = "";
 

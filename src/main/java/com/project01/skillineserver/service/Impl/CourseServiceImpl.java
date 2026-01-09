@@ -17,6 +17,7 @@ import com.project01.skillineserver.repository.custom.CustomCourseRepository;
 import com.project01.skillineserver.service.CourseService;
 import com.project01.skillineserver.specification.SearchCriteria;
 import com.project01.skillineserver.specification.SearchSpecification;
+import com.project01.skillineserver.utils.MapUtil;
 import com.project01.skillineserver.utils.UploadUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -52,20 +53,6 @@ public class CourseServiceImpl implements CourseService {
     private final UploadUtil uploadUtil;
     private final CustomCourseRepository customCourseRepository;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    @Override
-    public List<CourseResponse> getAllByCategoryId(Long categoryId) {
-        List<CourseEntity> courses = courseRepository.findAllByCategoryId(categoryId);
-        if (courses.isEmpty()) {
-            throw new AppException(ErrorCode.COURSE_EMPTY);
-        }
-
-        List<CourseResponse> courseResponses = courses.stream().map(courseMapper::toLectureResponse).toList();
-        return courseResponses;
-    }
-
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {AppException.class})
     public CourseEntity save(CourseReq courseReq) throws IOException {
@@ -90,7 +77,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public void delete(List<Long> courseId) {
-        List<CourseEntity> courseEntityListInDB = courseRepository.findAllByIdIn(courseId);
+        List<CourseEntity> courseEntityListInDB = courseRepository.findAllByCourseIdIn(courseId);
         courseEntityListInDB.forEach(courseEntity -> {
             courseEntity.setStatus(false);
         });
@@ -99,7 +86,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseResponse getCourseById(Long id) {
-        CourseEntity course = courseRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+        CourseEntity course = courseRepository.findByCourseId(id).orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
         return courseMapper.toLectureResponse(course);
     }
 
@@ -120,32 +107,25 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<CourseResponse> getListCourseById(List<Long> ids) {
-        return courseRepository.findAllByIdIn(ids).stream().map(courseMapper::toLectureResponse).toList();
+        return courseRepository.findAllByCourseIdIn(ids).stream().map(courseMapper::toLectureResponse).toList();
     }
 
     @Override
-    public List<CourseResponse> getCourseNotPagination() {
-        return courseRepository.findAll().stream().map(courseMapper::toLectureResponse).toList();
-    }
+    public PageResponse<CourseResponse> getCourses(int page, int size, String sort, String keyword,Long categoryId) {
+        Sort sortField = MapUtil.parseSort(sort);
 
-    @Override
-    public PageResponse<CourseResponse> getCourses(int page, int size, String sort, String keyword) {
-        Sort sortField = Sort.by(Sort.Direction.DESC, "createAt");
-        if (sort != null && keyword != null) {
-            sortField = SortField.ASC.getValue().equalsIgnoreCase(sort) ? Sort.by(Sort.Direction.ASC, keyword) : Sort.by(Sort.Direction.DESC, keyword);
-        }
         PageRequest pageRequest = PageRequest.of(page - 1, size, sortField);
 
-        Page<CourseEntity> orders = courseRepository.findAll(pageRequest);
+        Page<CourseEntity> pageCourses = courseRepository.getCourses(keyword,categoryId,pageRequest);
 
-        List<CourseResponse> courseResponseList = orders.getContent().stream().map(courseMapper::toLectureResponse).toList();
+        List<CourseResponse> courseResponseList = pageCourses.getContent().stream().map(courseMapper::toLectureResponse).toList();
 
         return PageResponse.<CourseResponse>builder()
                 .list(courseResponseList)
                 .page(page)
                 .size(size)
-                .totalElements(orders.getTotalElements())
-                .totalPages(orders.getTotalPages())
+                .totalElements(pageCourses.getTotalElements())
+                .totalPages(pageCourses.getTotalPages())
                 .build();
     }
 
@@ -212,9 +192,8 @@ public class CourseServiceImpl implements CourseService {
         if (inputFile instanceof MultipartFile multipartFile) {
             return uploadUtil.createPathFile(multipartFile, FileType.IMAGE).toString();
         } else {
-            return pathFile != null ? pathFile : "";
+            return pathFile;
         }
     }
-
 
 }

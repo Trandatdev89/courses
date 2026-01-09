@@ -26,18 +26,20 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void verifyAccount(VerifyAccountRequest verifyAccountRequest) throws IllegalAccessException {
 
-        EmailTemplate emailTemplate = templateMailRepository.findByType(EmailType.WELCOME).orElse(null);
+        EmailTemplate emailTemplate = templateMailRepository
+                .findByType(verifyAccountRequest.getEmailType())
+                .orElse(null);
 
         assert emailTemplate != null;
         String resultRender = renderTemplate(emailTemplate.getHtmlContent(), MapUtil.extractInfo(verifyAccountRequest));
-        mailjetUtil.sendMailWithMailjet(verifyAccountRequest.getEmail(),
-                "No Reply",
-                "Verify Account",
+        mailjetUtil.sendMailWithMailjet(verifyAccountRequest.getToEmail(),
+                verifyAccountRequest.getToName(),
+                emailTemplate.getSubject(),
                 resultRender,
                 verifyAccountRequest.getToken());
     }
 
-    public String renderTemplate(String html, Map<String, Object> data) {
+    private String renderTemplate(String html, Map<String, Object> data) {
         Context context = new Context();
         context.setVariables(data);
         return templateEngine.process(html, context);

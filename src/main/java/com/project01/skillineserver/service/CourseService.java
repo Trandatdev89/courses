@@ -12,14 +12,12 @@ import java.util.List;
 import java.util.Map;
 
 public interface CourseService {
-    List<CourseResponse> getAllByCategoryId(Long categoryId);
     CourseEntity save(CourseReq courseReq) throws IOException;
     void delete(List<Long> courseId);
     CourseResponse getCourseById(Long id);
     void purchaseCourse(List<Long> idCourse,Long userId);
     List<CourseResponse> getListCourseById(List<Long> ids);
-    List<CourseResponse> getCourseNotPagination();
-    PageResponse<CourseResponse> getCourses(int page, int size, String sort, String keyword);
+    PageResponse<CourseResponse> getCourses(int page, int size, String sort, String keyword,Long categoryId);
     PageResponse<CourseResponse> searchAdvanceCourse(String[] search,int page,int size,String sort);
     PageResponse<CourseResponse> getCoursesWithCursor(LocalDateTime cursor,String sort,String keyword,int size);
 }

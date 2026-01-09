@@ -40,33 +40,16 @@ public class CourseController {
                 .build();
     }
 
-    @GetMapping()
-    public ApiResponse<List<CourseResponse>> getCourseByCategory(@RequestParam Long categoryId) {
-        return ApiResponse.<List<CourseResponse>>builder()
-                .code(200)
-                .message("Success")
-                .data(courseService.getAllByCategoryId(categoryId))
-                .build();
-    }
-
-    @GetMapping(value = "/not-pagi")
-    public ApiResponse<List<CourseResponse>> getCourseNotPagination() {
-        return ApiResponse.<List<CourseResponse>>builder()
-                .code(200)
-                .message("Success")
-                .data(courseService.getCourseNotPagination())
-                .build();
-    }
-
     @GetMapping(value = "/all")
     public ApiResponse<PageResponse<CourseResponse>> getCourses(@RequestParam(defaultValue = "0") int page,
-                                                                @RequestParam(defaultValue = "1000") int size,
+                                                                @RequestParam(defaultValue = "10") int size,
                                                                 @RequestParam(required = false) String sort,
+                                                                @RequestParam(required = false) Long categoryId,
                                                                 @RequestParam(required = false) String keyword) {
         return ApiResponse.<PageResponse<CourseResponse>>builder()
                 .code(200)
                 .message("Success")
-                .data(courseService.getCourses(page, size, sort, keyword))
+                .data(courseService.getCourses(page, size, sort, keyword,categoryId))
                 .build();
     }
 
@@ -115,7 +98,6 @@ public class CourseController {
                                                             @RequestParam(defaultValue = "id,desc") String sort,
                                                             @RequestParam(required = false) String... search) {
 
-
         return ApiResponse.<PageResponse<?>>builder()
                 .data(courseService.searchAdvanceCourse(search, page, size, sort))
                 .code(200)
@@ -125,8 +107,6 @@ public class CourseController {
 
     @GetMapping(value = "/search-with-specification")
     public ApiResponse<?> searchWithSpecification(@RequestParam Map<String, Object> params) {
-
-
         Specification<CourseEntity> spec = Specification.where(null);
 
         for (Map.Entry<String, Object> item : params.entrySet()) {
@@ -140,7 +120,6 @@ public class CourseController {
                 spec = spec.and(courseSpecifications.hasField(key, value));
             }
         }
-
 
         List<CourseEntity> list = courseRepository.findAll(spec);
 

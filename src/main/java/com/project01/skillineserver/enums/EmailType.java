@@ -10,4 +10,5 @@ public enum EmailType {
     PASSWORD_RESET,             // Đặt lại mật khẩu
     ASSIGNMENT_DEADLINE,        // Hết hạn nộp bài
     TEACHER_APPLICATION,        // Đăng ký làm giáo viên
+    VERIFY_ACCOUNT
 }

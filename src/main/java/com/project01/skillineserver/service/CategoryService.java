@@ -11,6 +11,5 @@ import java.util.List;
 public interface CategoryService {
     void save(CategoryReq category) throws IOException;
     void delete(List<Long> listCateId);
-    List<CategoryResponse> getCategories();
     PageResponse<CategoryResponse> getCategoryPagination(int page, int size, String sort, String keyword);
 }

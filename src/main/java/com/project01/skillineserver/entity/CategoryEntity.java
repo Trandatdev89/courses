@@ -13,4 +13,5 @@ import lombok.*;
 public class CategoryEntity extends AbstractEntity <Long>{
     private String name;
     private String path;
+    private boolean isActive;
 }

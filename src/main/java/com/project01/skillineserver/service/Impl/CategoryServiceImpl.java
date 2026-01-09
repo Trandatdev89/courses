@@ -14,6 +14,7 @@ import com.project01.skillineserver.mapper.CategoryMapper;
 import com.project01.skillineserver.repository.CategoryRepository;
 import com.project01.skillineserver.repository.CourseRepository;
 import com.project01.skillineserver.service.CategoryService;
+import com.project01.skillineserver.utils.MapUtil;
 import com.project01.skillineserver.utils.UploadUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,7 +37,6 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final UploadUtil uploadUtil;
     private final CategoryMapper categoryMapper;
-    private final CourseRepository courseRepository;
 
     @Override
     @Transactional(rollbackFor = AppException.class)
@@ -49,37 +49,26 @@ public class CategoryServiceImpl implements CategoryService {
 
         categoryInDB.setName(category.name());
         categoryInDB.setPath(pathImage);
+        categoryInDB.setActive(true);
 
         categoryRepository.save(categoryInDB);
     }
 
     @Override
-    public List<CategoryResponse> getCategories() {
-        return categoryRepository.findAll().stream().map(categoryMapper::toLectureResponse).toList();
-    }
-
-    @Override
     public PageResponse<CategoryResponse> getCategoryPagination(int page, int size, String sort, String keyword) {
-        Sort sortField =  Sort.by(Sort.Direction.DESC,"createAt");
-
-        if(sort!=null && keyword!=null){
-            sortField = SortField.ASC.getValue().equalsIgnoreCase(sort)
-                    ? Sort.by(Sort.Direction.ASC,keyword)
-                    : Sort.by(Sort.Direction.DESC,keyword);
-        }
-
+        Sort sortField = MapUtil.parseSort(sort);
         PageRequest pageRequest  = PageRequest.of(page-1, size,sortField);
 
-        Page<CategoryEntity> orders = categoryRepository.findAll(pageRequest);
+        Page<CategoryEntity> pageCategories = categoryRepository.getCategories(keyword,pageRequest);
 
-        List<CategoryResponse> list = orders.getContent().stream().map(categoryMapper::toLectureResponse).toList();
+        List<CategoryResponse> list = pageCategories.getContent().stream().map(categoryMapper::toCategoriesResponse).toList();
 
         return PageResponse.<CategoryResponse>builder()
                 .list(list)
                 .page(page)
                 .size(size)
-                .totalElements(orders.getTotalElements())
-                .totalPages(orders.getTotalPages())
+                .totalElements(pageCategories.getTotalElements())
+                .totalPages(pageCategories.getTotalPages())
                 .build();
     }
 
@@ -90,17 +79,14 @@ public class CategoryServiceImpl implements CategoryService {
             throw new AppException(ErrorCode.LIST_ID_EMPTY);
         }
 
-        courseRepository.deleteAllByCategoryIdIn(categoryIds);
-
-        categoryRepository.deleteByIdIn(categoryIds);
+        categoryRepository.deleteCategoryByIds(categoryIds);
     }
-
 
     private String resolveImagePath(Object inputPath, String exitingPath) throws IOException {
         if(inputPath instanceof MultipartFile multipartFile){
             return uploadUtil.createPathFile(multipartFile,FileType.IMAGE).toString();
         }else{
-            return exitingPath!=null ? exitingPath : "";
+            return exitingPath;
         }
     }
 
