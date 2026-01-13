@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface LectureRepository extends JpaRepository<LectureEntity,String> {
+public interface LectureRepository extends JpaRepository<LectureEntity, String> {
     Page<LectureEntity> findAllByCourseId(PageRequest pageRequest, Long courseId);
 
     @Query("SELECT co.title as title, " +
@@ -25,4 +25,11 @@ public interface LectureRepository extends JpaRepository<LectureEntity,String> {
 
     @Query("select count(le.id) from LectureEntity le inner join CourseEntity co on le.courseId=co.id where le.courseId = :courseId")
     Long countLectureByCourseId(Long courseId);
+
+
+    @Query("select le from LectureEntity le " +
+            "inner join CourseEntity co on co.id=le.courseId " +
+            "where le.courseId=?2 and co.status = true and" +
+            "(?1 is null or le.title like lower(concat('%',?1,'%')))")
+    Page<LectureEntity> getLectures(String keyword, Long courseId, PageRequest pageRequest);
 }

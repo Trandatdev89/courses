@@ -9,6 +9,7 @@ import com.project01.skillineserver.entity.OrderEntity;
 import com.project01.skillineserver.entity.UserEntity;
 import com.project01.skillineserver.enums.*;
 import com.project01.skillineserver.excepion.CustomException.AppException;
+import com.project01.skillineserver.projection.OrderProjection;
 import com.project01.skillineserver.repository.CourseRepository;
 import com.project01.skillineserver.repository.OrderDetailRepository;
 import com.project01.skillineserver.repository.OrderRepository;
@@ -16,6 +17,7 @@ import com.project01.skillineserver.repository.UserRepository;
 import com.project01.skillineserver.service.CourseService;
 import com.project01.skillineserver.service.OrderService;
 import com.project01.skillineserver.service.PaymentService;
+import com.project01.skillineserver.utils.MapUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -38,20 +40,16 @@ public class OrderServiceImpl implements OrderService {
     private final UserRepository userRepository;
     private final CourseRepository courseRepository;
     private final OrderDetailRepository orderDetailRepository;
-    private final CourseService courseService;
-    private final PaymentService paymentService;
 
     @Override
-    public PageResponse<OrderEntity> getOrders(int page, int size, String sort, String keyword) {
-        Sort sortField =  Sort.by(Sort.Direction.DESC,"createdAt");
-        if(sort!=null && keyword!=null){
-            sortField = SortField.ASC.getValue().equalsIgnoreCase(sort) ? Sort.by(Sort.Direction.ASC,keyword) : Sort.by(Sort.Direction.DESC,keyword);
-        }
-        PageRequest pageRequest  = PageRequest.of(page-1, size,sortField);
+    public PageResponse<OrderProjection> getOrders(int page, int size, String sort, String keyword) {
+        Sort sortField = MapUtil.parseSort(sort);
 
-        Page<OrderEntity> orders = orderRepository.findAll(pageRequest);
+        PageRequest pageRequest = PageRequest.of(page - 1, size, sortField);
 
-        return PageResponse.<OrderEntity>builder()
+        Page<OrderProjection> orders = orderRepository.getOrders(keyword,pageRequest);
+
+        return PageResponse.<OrderProjection>builder()
                 .list(orders.getContent())
                 .page(page)
                 .size(size)
@@ -75,13 +73,13 @@ public class OrderServiceImpl implements OrderService {
                 .userId(user.getId())
                 .status(orderReq.getStatus())
                 .totalPrice(orderReq.getTotalPrice())
-                .createdAt(Instant.now())
+                .createAt(Instant.now())
                 .quantity(orderReq.getQuantity())
                 .build();
 
         OrderEntity order = orderRepository.save(orderEntity);
 
-        List<CourseEntity> courseEntityList = courseRepository.findAllByIdIn(orderReq.getCourseId());
+        List<CourseEntity> courseEntityList = courseRepository.findAllByCourseIdIn(orderReq.getCourseId());
 
         List<OrderDetailEntity> orderDetailEntities = new ArrayList<>();
         for (CourseEntity item : courseEntityList){

@@ -12,8 +12,6 @@ import java.util.List;
 
 public interface LectureService {
     LectureEntity save(LectureReq lectureReq) throws IOException, InterruptedException;
-    ResponseEntity<Resource> streamBasicVideo(String id);
-    ResponseEntity<Resource> streamRangeLecture(String id,String range);
     PageResponse<LectureResponse> getListLecture(int page, int size, String sort, String keyword, Long courseId);
     List<LectureResponse> getListLectureNotPagi(Long courseId);
 

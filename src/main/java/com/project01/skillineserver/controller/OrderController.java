@@ -5,6 +5,7 @@ import com.project01.skillineserver.dto.ApiResponse;
 import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.request.OrderReq;
 import com.project01.skillineserver.entity.OrderEntity;
+import com.project01.skillineserver.projection.OrderProjection;
 import com.project01.skillineserver.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,12 +21,12 @@ public class OrderController {
 
     @GetMapping
     @PreAuthorize("@authorizationService.isAdmin()")
-    public ApiResponse<PageResponse<OrderEntity>> getOrders(@RequestParam(defaultValue = "0") int page,
+    public ApiResponse<PageResponse<OrderProjection>> getOrders(@RequestParam(defaultValue = "0") int page,
                                                @RequestParam(defaultValue = "10") int size,
                                                @RequestParam(required = false) String sort,
                                                @RequestParam(required = false) String keyword) {
 
-        return ApiResponse.<PageResponse<OrderEntity>>builder()
+        return ApiResponse.<PageResponse<OrderProjection>>builder()
                 .code(200)
                 .message("Success")
                 .data(orderService.getOrders(page,size,sort,keyword))

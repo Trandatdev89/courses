@@ -32,6 +32,7 @@ public enum ErrorCode {
     PASSWORD_IS_EXPIRED(1018,"Password is expire .Please change password ensure account security",HttpStatus.BAD_REQUEST),
     ACCOUNT_LOGINED(1019,"Account is logined from divice other",HttpStatus.LOCKED),
     USER_SUBSCRIPTION_EMPTY(1020,"User subscription is empty",HttpStatus.NOT_FOUND),
+    USER_NOT_BUY_COURSE(1021,"You not buy course that",HttpStatus.NOT_FOUND),
 
     INTERNAL_SERVER(9999,"Server error",HttpStatus.INTERNAL_SERVER_ERROR);
 

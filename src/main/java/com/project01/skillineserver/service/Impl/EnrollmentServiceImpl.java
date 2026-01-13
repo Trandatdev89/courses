@@ -18,7 +18,6 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     private final EnrollmentRepository enrollmentRepository;
 
-
     @Override
     public List<CourseProjection> getListCourseUserBuy(Long userId) {
         return enrollmentRepository.getListCourseUserBuy(userId);

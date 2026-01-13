@@ -32,6 +32,4 @@ public interface CourseRepository extends JpaRepository<CourseEntity,Long>, JpaS
             "and (?2 is null or c.categoryId = ?2 )")
     Page<CourseEntity> getCourses(String title,Long category_id, Pageable pageable);
 
-
-
 }

@@ -5,10 +5,13 @@ import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 
-public interface FileService {
+public interface MediaService {
     void processVideo(String videoId) throws IOException, InterruptedException;
     void processVideoAsync(String videoId);
 
     ResponseEntity<Resource> streamMasterPlaylist(String videoId);
     ResponseEntity<Resource> streamSegment(String videoId,String segmentName);
+
+    ResponseEntity<Resource> streamBasicVideo(String id);
+    ResponseEntity<Resource> streamRangeLecture(String id,String range);
 }
