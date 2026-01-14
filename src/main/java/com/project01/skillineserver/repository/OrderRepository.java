@@ -14,7 +14,7 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
 
     @Query("SELECT od.id AS id, " +
             "od.status AS status, " +
-            "od.createAt AS createdAt, " +
+            "od.createdAt AS createdAt, " +
             "od.quantity AS quantity, " +
             "od.totalPrice AS totalPrice, " +
             "us.username AS username, " +

@@ -26,11 +26,11 @@ public abstract class AbstractEntity<T extends Serializable> implements Serializ
 
     @CreatedDate
     @Column(name = "created_at")
-    private Instant createAt;
+    private Instant createdAt;
 
     @LastModifiedDate
     @Column(name = "updated_at")
-    private Instant updateAt;
+    private Instant updatedAt;
 
     @PrePersist
     public void generateId(){

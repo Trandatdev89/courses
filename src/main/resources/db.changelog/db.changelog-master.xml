@@ -16,5 +16,12 @@
     <include file="db.changelog/changeset/create-reviews-table.xml"/>
     <include file="db.changelog/changeset/insert/insert-user-table.xml"/>
     <include file="db.changelog/changeset/create-user-devices-table.xml"/>
+    <include file="db.changelog/changeset/create-quiz-table.xml"/>
+    <include file="db.changelog/changeset/create-question-table.xml"/>
+    <include file="db.changelog/changeset/create-answer-table.xml"/>
+    <include file="db.changelog/changeset/create-quiz-attempt-table.xml"/>
+    <include file="db.changelog/changeset/create-history-score-user-table.xml"/>
+    <include file="db.changelog/changeset/create-history-answer-user-choice.xml"/>
+    <include file="db.changelog/changeset/create-user-sub-webpush.xml"/>
 
 </databaseChangeLog>

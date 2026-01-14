@@ -83,8 +83,6 @@ public class MediaServiceImpl implements MediaService {
     @Override
     public ResponseEntity<Resource> streamRangeLecture(String id, String range) {
         System.out.println(range);
-        //
-
         LectureEntity video = lectureRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.LECTURE_NOT_FOUND));
         Path path = Paths.get(video.getFilePath());
 
@@ -97,17 +95,12 @@ public class MediaServiceImpl implements MediaService {
 
         }
 
-        //file ki length
         long fileLength = path.toFile().length();
         log.info("Length all file video :{}", fileLength);
 
-
-        //pahle jaisa hi code hai kyuki range header null
         if (range == null) {
             return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType)).body(resource);
         }
-
-        //calculating start and end range
 
         long rangeStart;
 

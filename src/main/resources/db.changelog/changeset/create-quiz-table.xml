@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="15" author="datmacay_v1">
+        <createTable tableName="quiz">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="lecture_id" type="varchar(225)"/>
+            <column name="title" type="varchar(225)"/>
+            <column name="description" type="varchar(225)"/>
+            <column name="created_at" type="timestamp"/>
+            <column name="updated_at" type="timestamp"/>
+            <column name="time_limit" type="timestamp"/>
+            <column name="max_attempt" type="int"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="quiz"
+                baseColumnNames="lecture_id"
+                referencedTableName="lecture"
+                referencedColumnNames="id"
+                constraintName="fk_lecture_quiz"/>
+
+    </changeSet>
+</databaseChangeLog>

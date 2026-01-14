@@ -26,6 +26,6 @@ public class NotificationEntity {
     private String linkAttachment;
     private boolean isActive;
     private Instant timePush;
-    private Instant createAt;
+    private Instant createdAt;
 
 }

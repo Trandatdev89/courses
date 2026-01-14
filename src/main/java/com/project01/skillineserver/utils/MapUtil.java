@@ -37,7 +37,7 @@ public class MapUtil {
     }
     public static Sort parseSort(String sort){
         if(!StringUtils.hasText(sort)){
-            return Sort.by(Sort.Direction.DESC,"createAt");
+            return Sort.by(Sort.Direction.DESC,"createdAt");
         }
 
         String[] parts = sort.split(":");

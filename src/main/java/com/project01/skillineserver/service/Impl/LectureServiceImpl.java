@@ -48,10 +48,10 @@ public class LectureServiceImpl implements LectureService {
         lectureEntity.setTitle(lectureReq.title());
         lectureEntity.setPosition(lectureReq.position());
         lectureEntity.setCourseId(lectureReq.courseId());
-        lectureEntity.setUpdateAt(Instant.now());
+        lectureEntity.setUpdatedAt(Instant.now()) ;
 
         if(!isUpdate){
-            lectureEntity.setCreateAt(Instant.now());
+            lectureEntity.setCreatedAt(Instant.now());
         }
 
         //handle Video upload only if new file

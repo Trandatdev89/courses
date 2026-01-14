@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="22" author="datmacay_v1">
+        <createTable tableName="user_subscriptions">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="user_id" type="bigint"/>
+            <column name="endpoint" type="varchar(225)"/>
+            <column name="p256dh" type="varchar(225)"/>
+            <column name="auth" type="varchar(225)"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="user_subscriptions"
+                baseColumnNames="user_id"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                constraintName="fk_user_subscriptions"/>
+    </changeSet>
+</databaseChangeLog>

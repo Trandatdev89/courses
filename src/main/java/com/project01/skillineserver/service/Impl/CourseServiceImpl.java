@@ -94,6 +94,12 @@ public class CourseServiceImpl implements CourseService {
     public void purchaseCourse(List<Long> idCourse, Long userId) {
         List<EnrollmentEntity> enrollmentEntities = new ArrayList<>();
         for (Long courseId : idCourse) {
+            boolean isExitsCourse = courseRepository.existsById(courseId);
+
+            if(!isExitsCourse){
+                throw new AppException(ErrorCode.COURSE_NOT_FOUND);
+            }
+
             EnrollmentEntity enrollmentEntity = EnrollmentEntity.builder()
                     .userId(userId)
                     .courseId(courseId)

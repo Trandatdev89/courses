@@ -14,7 +14,7 @@ public class NotificationResponse {
     private String avatarUrl;
     private String title;
     private String timePush;
-    private String createAt;
+    private String createdAt;
     private String linkAttachment;
     private boolean isActive;
 }

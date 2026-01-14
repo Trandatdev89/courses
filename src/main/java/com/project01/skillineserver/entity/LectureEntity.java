@@ -15,12 +15,7 @@ import java.time.Instant;
 @Setter
 @Entity
 @Table(name = "lecture")
-public class LectureEntity{
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id")
-    private String id;
+public class LectureEntity extends AbstractEntity<String>{
     private String title;
     private String image;
     private Integer position;
@@ -34,13 +29,5 @@ public class LectureEntity{
 
     @Enumerated(EnumType.STRING)
     private ProcessStatus processStatus;
-
-    @CreatedDate
-    @Column(name = "created_at")
-    private Instant createAt;
-
-    @LastModifiedDate
-    @Column(name = "update_at")
-    private Instant updateAt;
 }
 

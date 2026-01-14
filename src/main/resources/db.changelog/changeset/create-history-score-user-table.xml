@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="20" author="datmacay_v1">
+        <createTable tableName="history_score_user">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="attempt_quiz_id" type="bigint"/>
+            <column name="question_id" type="bigint"/>
+            <column name="answer_text" type="varchar(225)"/>
+            <column name="score" type="double"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="history_score_user"
+                baseColumnNames="attempt_quiz_id"
+                referencedTableName="quiz_attempt"
+                referencedColumnNames="id"
+                constraintName="fk_quiz_attempt_attempt_quiz_id"/>
+
+
+        <addForeignKeyConstraint
+                baseTableName="history_score_user"
+                baseColumnNames="question_id"
+                referencedTableName="questions"
+                referencedColumnNames="id"
+                constraintName="fk_history_score_user_questions"/>
+
+
+    </changeSet>
+</databaseChangeLog>

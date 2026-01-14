@@ -38,8 +38,8 @@ public class CourseMapper {
                 .price(courseEntity.getPrice())
                 .description(courseEntity.getDescription())
                 .status(courseEntity.isStatus())
-                .createAt(dateUtil.format(courseEntity.getCreateAt()))
-                .updateAt(dateUtil.format(courseEntity.getUpdateAt()))
+                .createAt(dateUtil.format(courseEntity.getCreatedAt()))
+                .updateAt(dateUtil.format(courseEntity.getUpdatedAt()))
                 .build();
     }
 }

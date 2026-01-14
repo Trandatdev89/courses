@@ -36,8 +36,8 @@ public class LectureMapper {
                 .urlThumbnail(urlThumbnail)
                 .duration(duration)
                 .position(lectureEntity.getPosition())
-                .createAt(dateUtil.format(lectureEntity.getCreateAt()))
-                .updateAt(dateUtil.format(lectureEntity.getUpdateAt()))
+                .createAt(dateUtil.format(lectureEntity.getCreatedAt()))
+                .updateAt(dateUtil.format(lectureEntity.getUpdatedAt()))
                 .build();
     }
 }

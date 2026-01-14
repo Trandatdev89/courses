@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="17" author="datmacay_v1">
+        <createTable tableName="quiz_attempt">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="quiz_id" type="bigint"/>
+            <column name="user_id" type="bigint"/>
+            <column name="attempt_no" type="int"/>
+            <column name="submitted_at" type="timestamp"/>
+            <column name="total_score" type="double"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="quiz_attempt"
+                baseColumnNames="quiz_id"
+                referencedTableName="quiz"
+                referencedColumnNames="id"
+                constraintName="fk_quiz_attempt_quiz"/>
+
+        <addForeignKeyConstraint
+                baseTableName="quiz_attempt"
+                baseColumnNames="user_id"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                constraintName="fk_users_attempt_quiz"/>
+
+    </changeSet>
+</databaseChangeLog>

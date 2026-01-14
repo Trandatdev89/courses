@@ -21,7 +21,7 @@ public class NotificationMapper {
                 .nameUser(notificationEntity.getNameUser())
                 .isActive(notificationEntity.isActive())
                 .linkAttachment(notificationEntity.getLinkAttachment())
-                .createAt(dateUtil.format(notificationEntity.getCreateAt()))
+                .createdAt(dateUtil.format(notificationEntity.getCreatedAt()))
                 .timePush(dateUtil.format(notificationEntity.getTimePush()))
                 .build();
     }

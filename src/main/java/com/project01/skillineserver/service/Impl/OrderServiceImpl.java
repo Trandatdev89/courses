@@ -73,7 +73,7 @@ public class OrderServiceImpl implements OrderService {
                 .userId(user.getId())
                 .status(orderReq.getStatus())
                 .totalPrice(orderReq.getTotalPrice())
-                .createAt(Instant.now())
+                .createdAt(Instant.now())
                 .quantity(orderReq.getQuantity())
                 .build();
 

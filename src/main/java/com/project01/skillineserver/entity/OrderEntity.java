@@ -27,5 +27,5 @@ public class OrderEntity {
     private OrderStatus status;
     private Long quantity;
     @Column(name = "created_at")
-    private Instant createAt;
+    private Instant createdAt;
 }

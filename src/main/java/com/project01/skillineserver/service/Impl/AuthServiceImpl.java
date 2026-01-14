@@ -271,7 +271,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void verifyAccount(String token, Long userId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        if (user.getCreateAt().plus(10, ChronoUnit.MINUTES).isBefore(Instant.now())) {
+        if (user.getCreatedAt().plus(10, ChronoUnit.MINUTES).isBefore(Instant.now())) {
             userRepository.deleteById(userId);
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }
