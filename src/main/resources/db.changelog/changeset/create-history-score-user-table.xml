@@ -32,4 +32,11 @@
 
 
     </changeSet>
+
+    <changeSet id="20260115-01-modify-history_score_user-content" author="datmacay_v1">
+        <modifyDataType
+                tableName="history_score_user"
+                columnName="answer_text"
+                newDataType="TEXT"/>
+    </changeSet>
 </databaseChangeLog>

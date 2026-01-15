@@ -22,6 +22,10 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
         enable_lazy_load_no_trans: true
         format_sql: true
+        jdbc:
+          batch_size: 50
+        order_updates: true
+        order_inserts: true
     show-sql: true
   liquibase:
     change-log: classpath:db.changelog/db.changelog-master.xml

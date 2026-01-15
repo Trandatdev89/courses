@@ -17,7 +17,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @EntityListeners(AuditingEntityListener.class)
-public abstract class AbstractEntity<T extends Serializable> implements Serializable {
+public abstract class BaseEntity<T extends Serializable> implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -22,4 +22,11 @@
                 constraintName="fk_quiz_question_options_questions"/>
 
     </changeSet>
+
+    <changeSet id="20260115-01-modify-answer-content" author="datmacay_v1">
+        <modifyDataType
+                tableName="answer"
+                columnName="content"
+                newDataType="TEXT"/>
+    </changeSet>
 </databaseChangeLog>

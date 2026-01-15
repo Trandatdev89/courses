@@ -12,7 +12,7 @@ import lombok.*;
 @Setter
 @Entity
 @Table(name = "questions")
-public class QuestionEntity extends AbstractEntity<Long>{
+public class QuestionEntity extends BaseEntity<Long> {
     @Column(name = "quiz_id")
     private Long quizId;
     private String content;

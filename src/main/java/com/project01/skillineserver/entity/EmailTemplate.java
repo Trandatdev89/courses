@@ -11,7 +11,7 @@ import lombok.*;
 @Builder
 @Entity
 @Table(name = "email_template")
-public class EmailTemplate extends AbstractEntity<Long>{
+public class EmailTemplate extends BaseEntity<Long> {
 
     @Enumerated(EnumType.STRING)
     private EmailType type;

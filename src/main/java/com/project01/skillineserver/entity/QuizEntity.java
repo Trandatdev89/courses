@@ -14,7 +14,7 @@ import java.time.Instant;
 @Setter
 @Entity
 @Table(name = "quiz")
-public class QuizEntity extends AbstractEntity<Long>{
+public class QuizEntity extends BaseEntity<Long> {
     @Column(name = "lecture_id")
     private String lectureId;
     private String title;

@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @Setter
 @Entity
 @Table(name = "courses")
-public class CourseEntity extends AbstractEntity<Long>{
+public class CourseEntity extends BaseEntity<Long> {
 
     private String title;
     private String description;

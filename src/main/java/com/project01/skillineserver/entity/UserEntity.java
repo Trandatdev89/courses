@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,7 +13,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(name = "users")
-public class UserEntity extends AbstractEntity <Long>{
+public class UserEntity extends BaseEntity<Long> {
     private String username;
     private String password;
     private String email;

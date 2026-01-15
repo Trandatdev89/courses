@@ -33,6 +33,12 @@ public enum ErrorCode {
     ACCOUNT_LOGINED(1019,"Account is logined from divice other",HttpStatus.LOCKED),
     USER_SUBSCRIPTION_EMPTY(1020,"User subscription is empty",HttpStatus.NOT_FOUND),
     USER_NOT_BUY_COURSE(1021,"You not buy course that",HttpStatus.NOT_FOUND),
+    FILE_REQUIRE(1022,"You need send file to body",HttpStatus.BAD_REQUEST),
+    QUIZ_NOT_EXITS(1023,"This is Quiz not exits, maybe that is delete!",HttpStatus.NOT_FOUND),
+    QUIZ_ID_REQUIRE(1024,"Please select quiz you need remove!",HttpStatus.BAD_REQUEST),
+    QUESTION_NOT_EXITS(1025,"question is not exits",HttpStatus.NOT_FOUND),
+    QUESTION_EMPTY(1026,"question is not exits",HttpStatus.BAD_REQUEST),
+    QUIZ_MAX_FIVE(1027,"That is max 5 Quiz",HttpStatus.CONFLICT),
 
     INTERNAL_SERVER(9999,"Server error",HttpStatus.INTERNAL_SERVER_ERROR);
 

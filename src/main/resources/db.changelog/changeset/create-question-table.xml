@@ -26,4 +26,11 @@
                 constraintName="fk_questions_quiz"/>
 
     </changeSet>
+
+    <changeSet id="20260115-01-modify-question-content" author="datmacay">
+        <modifyDataType
+                tableName="questions"
+                columnName="content"
+                newDataType="TEXT"/>
+    </changeSet>
 </databaseChangeLog>
