@@ -1,5 +1,6 @@
 package com.project01.skillineserver.service.Impl;
 
+import com.project01.skillineserver.config.CustomUserDetail;
 import com.project01.skillineserver.dto.reponse.AnswerRes;
 import com.project01.skillineserver.dto.reponse.ResultExamResponse;
 import com.project01.skillineserver.dto.request.AnswerUserReq;
@@ -12,14 +13,19 @@ import com.project01.skillineserver.repository.HistoryAnswerUserChoiceRepository
 import com.project01.skillineserver.repository.HistoryScoreUserRepository;
 import com.project01.skillineserver.repository.QuizAttemptRepository;
 import com.project01.skillineserver.service.QuizAttemptService;
+import com.project01.skillineserver.utils.AuthenticationUtil;
+import com.project01.skillineserver.utils.MapUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -36,18 +42,11 @@ public class QuizAttemptServiceImpl implements QuizAttemptService {
     public ResultExamResponse save(AttemptQuizReq attemptQuizReq, Long userId) {
         QuizAttemptEntity quizAttempt = new QuizAttemptEntity();
         Integer attemptNo = quizAttemptRepository.getAttemptNoOfUser(userId, attemptQuizReq.quizId());
-
+        attemptNo = attemptNo == null ? 0 : attemptNo;
         if(attemptNo>5){
             throw new AppException(ErrorCode.QUIZ_MAX_FIVE);
         }
-        attemptNo = attemptNo == null ? 1 : Math.min(attemptNo + 1, 5); // thi toi da 5 lan
-        quizAttempt.setAttemptNo(attemptNo);
-        quizAttempt.setQuizId(attemptQuizReq.quizId());
-        quizAttempt.setSubmittedAt(Instant.now());
-        quizAttempt.setUserId(userId);
-        quizAttempt.setTotalScore(0D);
-
-        quizAttemptRepository.save(quizAttempt);
+        attemptNo = Math.min(attemptNo + 1, 5); // thi toi da 5 lan
 
         Map<Long, Set<Long>> correctAnswerMap = new HashMap<>();
         List<AnswerEntity> correctAnswers = quizAttemptRepository.getAnswersByQuestionId(attemptQuizReq.quizId());
@@ -57,7 +56,6 @@ public class QuizAttemptServiceImpl implements QuizAttemptService {
                     .add(a.getId());
         }
 
-        log.info("Load Answer example of teacher ,{}", correctAnswerMap.toString());
         double totalScore = 0;
         List<AnswerRes> answerRes = new ArrayList<>();
         List<HistoryScoreUserEntity> historyScoreUserNeedSave = new ArrayList<>();
@@ -79,41 +77,47 @@ public class QuizAttemptServiceImpl implements QuizAttemptService {
                     .questionId(answerUserReq.questionId())
                     .score(score)
                     .answerText(answerUserReq.answerText())
-                    .attemptQuizId(quizAttempt.getId())
                     .build());
         }
 
-        //save lich su thi
+        quizAttempt.setAttemptNo(attemptNo);
+        quizAttempt.setQuizId(attemptQuizReq.quizId());
+        quizAttempt.setSubmittedAt(Instant.now());
+        quizAttempt.setUserId(userId);
         quizAttempt.setTotalScore(totalScore);
         quizAttemptRepository.save(quizAttempt);
+
+        //save lich su thi
+        final Long attemptId = quizAttempt.getId();
+        historyScoreUserNeedSave.forEach(h -> h.setAttemptQuizId(attemptId));
         historyScoreUserRepository.saveAll(historyScoreUserNeedSave);
 
         //save detail answer then user choice
         List<HistoryAnswerUserChoiceEntity> options = new ArrayList<>();
-        Map<Long, List<Long>> questionHistoryMap =
-                historyScoreUserNeedSave.stream()
-                        .collect(Collectors.groupingBy(
-                                HistoryScoreUserEntity::getQuestionId,
-                                Collectors.mapping(
-                                        HistoryScoreUserEntity::getId,
-                                        Collectors.toList()
-                                )
-                        ));
+        for (int i = 0; i < attemptQuizReq.answerUserReqs().size(); i++) {
+            AnswerUserReq req = attemptQuizReq.answerUserReqs().get(i);
+            HistoryScoreUserEntity history = historyScoreUserNeedSave.get(i);
 
-
-        for (AnswerUserReq req : attemptQuizReq.answerUserReqs()) {
-            List<Long> historyIds = questionHistoryMap.get(req.questionId());
-
-            for (Long historyId : historyIds) {
-                options.add(
-                        new HistoryAnswerUserChoiceEntity(
-                                new QuizAttemptAnswerOptionId(historyId, req.answerId())
-                        )
-                );
-            }
+            options.add(new HistoryAnswerUserChoiceEntity(
+                    new QuizAttemptAnswerOptionId(history.getId(), req.answerId())
+            ));
         }
+
         historyAnswerUserChoiceRepository.saveAll(options);
 
         return quizAttemptMapper.toResultExamResponse(attemptQuizReq.quizId(), totalScore, answerRes);
+    }
+
+    @Override
+    public List<QuizAttemptEntity> getQuizAttempts(int page, int size, String sort, String keyword) {
+        Sort sortField = MapUtil.parseSort(sort);
+        PageRequest pageRequest = PageRequest.of(page - 1, size, sortField);
+
+        CustomUserDetail customUserDetail = AuthenticationUtil.getUserDetail();
+
+        Page<QuizAttemptEntity> pageQuizAttempt = quizAttemptRepository
+                .getPageQuizAttemptOfUser(customUserDetail.getUser().getId(),keyword,pageRequest);
+
+        return List.of();
     }
 }

@@ -24,6 +24,7 @@ spring:
         format_sql: true
         jdbc:
           batch_size: 50
+          batch_versioned_data: true
         order_updates: true
         order_inserts: true
     show-sql: true
@@ -66,5 +67,13 @@ vapid:
   public:
     key: BPraorcKlgWDJkoclqXU-PrfY4CxBpw5jFqbQEHPBO2imyPSRQ2UKm3mvFzL4gNqemqqCr1rLgpr12l6h9LKBAg
   subject: "mailto:tranquocdat30122004@gmail.com"
+
+scheduler:
+  quiz-cleanup:
+    enabled: true
+    cron: "0 0 2 * * *"
+    retention-days: 10
+    batch-size: 1000
+
 
 
