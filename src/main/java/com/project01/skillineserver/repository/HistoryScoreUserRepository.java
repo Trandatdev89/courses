@@ -13,4 +13,7 @@ public interface HistoryScoreUserRepository extends JpaRepository<HistoryScoreUs
     @Query("delete from HistoryScoreUserEntity hsu " +
             "where hsu.attemptQuizId in :attemptQuizIds")
     int deleteByAttemptQuizIdIn(List<Long> attemptQuizIds);
+
+    @Query("")
+    Object getHistoryScoreExamOfUser(Long userId, Long quizId);
 }

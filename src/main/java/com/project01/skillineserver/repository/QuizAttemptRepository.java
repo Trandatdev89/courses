@@ -2,6 +2,7 @@ package com.project01.skillineserver.repository;
 
 import com.project01.skillineserver.entity.AnswerEntity;
 import com.project01.skillineserver.entity.QuizAttemptEntity;
+import com.project01.skillineserver.projection.QuizAttemptProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -32,15 +33,17 @@ public interface QuizAttemptRepository extends JpaRepository<QuizAttemptEntity, 
 
     int deleteByIdIn(List<Long> quizAttemptIds);
 
-    @Query("select qa.quizId," +
-            "qa.userId," +
-            "qa.attemptNo," +
-            "qa.submittedAt," +
-            "qa.totalScore " +
+    @Query("select qa.quizId as quizId," +
+            "qa.userId as userId," +
+            "qa.attemptNo as attemptNo," +
+            "qa.submittedAt as submittedAt," +
+            "qu.title as title,"+
+            "us.fullname as fullName,"+
+            "qa.totalScore as totalScore " +
             "from QuizAttemptEntity qa " +
             "inner join QuizEntity qu on qu.id = qa.quizId " +
             "inner join UserEntity us on us.id = qa.userId " +
-            "where qa.userId=?1 and qu.title like lower(concat('%',?2,'%'))" +
+            "where qa.userId=?1 and (?2 is null or qu.title like lower(concat('%',?2,'%')))" +
             "order by qa.totalScore desc ")
-    Page<QuizAttemptEntity> getPageQuizAttemptOfUser(Long userId, String keyword, PageRequest pageRequest);
+    Page<QuizAttemptProjection> getPageQuizAttemptOfUser(Long userId, String keyword, PageRequest pageRequest);
 }

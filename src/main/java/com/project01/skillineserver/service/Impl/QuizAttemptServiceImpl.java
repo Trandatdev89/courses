@@ -2,6 +2,7 @@ package com.project01.skillineserver.service.Impl;
 
 import com.project01.skillineserver.config.CustomUserDetail;
 import com.project01.skillineserver.dto.reponse.AnswerRes;
+import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.reponse.ResultExamResponse;
 import com.project01.skillineserver.dto.request.AnswerUserReq;
 import com.project01.skillineserver.dto.request.AttemptQuizReq;
@@ -9,6 +10,7 @@ import com.project01.skillineserver.entity.*;
 import com.project01.skillineserver.enums.ErrorCode;
 import com.project01.skillineserver.excepion.CustomException.AppException;
 import com.project01.skillineserver.mapper.QuizAttemptMapper;
+import com.project01.skillineserver.projection.QuizAttemptProjection;
 import com.project01.skillineserver.repository.HistoryAnswerUserChoiceRepository;
 import com.project01.skillineserver.repository.HistoryScoreUserRepository;
 import com.project01.skillineserver.repository.QuizAttemptRepository;
@@ -109,15 +111,21 @@ public class QuizAttemptServiceImpl implements QuizAttemptService {
     }
 
     @Override
-    public List<QuizAttemptEntity> getQuizAttempts(int page, int size, String sort, String keyword) {
+    public PageResponse<QuizAttemptProjection> getQuizAttempts(int page, int size, String sort, String keyword) {
         Sort sortField = MapUtil.parseSort(sort);
         PageRequest pageRequest = PageRequest.of(page - 1, size, sortField);
 
         CustomUserDetail customUserDetail = AuthenticationUtil.getUserDetail();
 
-        Page<QuizAttemptEntity> pageQuizAttempt = quizAttemptRepository
+        Page<QuizAttemptProjection> pageQuizAttempt = quizAttemptRepository
                 .getPageQuizAttemptOfUser(customUserDetail.getUser().getId(),keyword,pageRequest);
 
-        return List.of();
+        return PageResponse.<QuizAttemptProjection>builder()
+                .totalPages(pageQuizAttempt.getTotalPages())
+                .size(size)
+                .page(page)
+                .list(pageQuizAttempt.getContent())
+                .totalElements(pageQuizAttempt.getTotalElements())
+                .build();
     }
 }

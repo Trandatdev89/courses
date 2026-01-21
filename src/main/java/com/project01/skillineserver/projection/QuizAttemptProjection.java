@@ -1,9 +1,14 @@
-//package com.project01.skillineserver.projection;
-//
-//public interface QuizAttemptProjection {
-//    String getUsername();
-//    String getFullname();
-//    String getTitle();
-//    String getId();
-//    String getTotal
-//}
+package com.project01.skillineserver.projection;
+
+import java.time.Instant;
+
+public interface QuizAttemptProjection {
+    Long getUserId();
+    String getFullName();
+    String getTitle();
+    String getQuizId();
+    Double getTotalScore();
+    Instant getSubmittedAt();
+    Integer getAttemptNo();
+
+}

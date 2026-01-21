@@ -20,7 +20,6 @@ import java.util.List;
 public class CourseProgressController {
 
     private final CourseProgressService courseProgressService;
-    private final CourseProgressRepository courseProgressRepository;
 
     @GetMapping
     public ApiResponse<List<CourseProgressEntity> > checkProgressCourse(@AuthenticationPrincipal CustomUserDetail customUserDetail,
@@ -33,16 +32,10 @@ public class CourseProgressController {
     }
 
     @PostMapping
-    public ApiResponse<?> saveProgress(@AuthenticationPrincipal CustomUserDetail customUserDetail,
-                                                                        @RequestParam String lectureId,
-                                                                        @RequestParam Long enrollmentId){
+    public ApiResponse<?> saveProgress(@RequestParam String lectureId,
+                                       @RequestParam Long enrollmentId){
 
-        courseProgressRepository.save(CourseProgressEntity.builder()
-                        .lectureId(lectureId)
-                        .isCompleted(true)
-                        .completedAt(Instant.now())
-                        .enrollmentId(enrollmentId)
-                .build());
+        courseProgressService.updateProgressCourse(enrollmentId,lectureId);
 
         return ApiResponse.builder()
                 .code(200)
