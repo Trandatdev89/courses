@@ -11,5 +11,4 @@ import lombok.*;
 public class AnswerRes{
     private Long questionId;
     private boolean isCorrect = false;
-//    private String content;
 }

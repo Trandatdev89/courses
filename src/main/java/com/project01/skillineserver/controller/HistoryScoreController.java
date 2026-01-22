@@ -3,6 +3,8 @@ package com.project01.skillineserver.controller;
 
 import com.project01.skillineserver.config.CustomUserDetail;
 import com.project01.skillineserver.dto.ApiResponse;
+import com.project01.skillineserver.dto.reponse.HistoryExamUser;
+import com.project01.skillineserver.dto.reponse.QuestionExamUser;
 import com.project01.skillineserver.service.HistoryScoreUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,12 +21,12 @@ public class HistoryScoreController {
     private final HistoryScoreUserService historyScoreUserService;
 
     @GetMapping(value = "/exam")
-    public ApiResponse<?> getHistoryScoreExamOfUser(@AuthenticationPrincipal CustomUserDetail customUserDetail,
-                                                    @RequestParam Long quizId){
+    public ApiResponse<HistoryExamUser> getHistoryScoreExamOfUser(@AuthenticationPrincipal CustomUserDetail customUserDetail,
+                                                                  @RequestParam Long attemptQuizId){
 
-        return ApiResponse.builder()
+        return ApiResponse.<HistoryExamUser>builder()
                 .message("Get history exam user success!")
-                .data(historyScoreUserService.getHistoryScoreExamOfUser(customUserDetail.getUser().getId(),quizId))
+                .data(historyScoreUserService.getHistoryScoreExamOfUser(attemptQuizId))
                 .code(200)
                 .build();
     }

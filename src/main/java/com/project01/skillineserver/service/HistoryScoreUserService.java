@@ -1,7 +1,9 @@
 package com.project01.skillineserver.service;
 
-import org.springframework.validation.ObjectError;
+import com.project01.skillineserver.dto.reponse.HistoryExamUser;
+import com.project01.skillineserver.dto.reponse.QuestionExamUser;
+
 
 public interface HistoryScoreUserService {
-    Object getHistoryScoreExamOfUser(Long userId,Long quizId);
+    HistoryExamUser getHistoryScoreExamOfUser(Long attemptQuizId);
 }

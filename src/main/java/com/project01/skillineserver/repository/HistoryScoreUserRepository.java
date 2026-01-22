@@ -1,19 +1,27 @@
 package com.project01.skillineserver.repository;
 
 import com.project01.skillineserver.entity.HistoryScoreUserEntity;
+import com.project01.skillineserver.projection.AnswerUserChoiceProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface HistoryScoreUserRepository extends JpaRepository<HistoryScoreUserEntity,Long> {
+public interface HistoryScoreUserRepository extends JpaRepository<HistoryScoreUserEntity, Long> {
 
     @Modifying
     @Query("delete from HistoryScoreUserEntity hsu " +
             "where hsu.attemptQuizId in :attemptQuizIds")
     int deleteByAttemptQuizIdIn(List<Long> attemptQuizIds);
 
-    @Query("")
-    Object getHistoryScoreExamOfUser(Long userId, Long quizId);
+    @Query("""
+                select hsu.score,hauc.id.answerId as answerUserChoice
+                from HistoryScoreUserEntity hsu
+                inner join HistoryAnswerUserChoiceEntity hauc on hauc.id.historyAnswerUserId = hsu.id
+                where hsu.attemptQuizId = ?1
+                  and hsu.questionId = ?2
+            """)
+    List<AnswerUserChoiceProjection> findByAttemptQuizIdAndQuestionId(Long attemptQuizId, Long questionId);
+
 }
