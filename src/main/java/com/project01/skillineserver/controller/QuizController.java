@@ -1,7 +1,10 @@
 package com.project01.skillineserver.controller;
 
 import com.project01.skillineserver.dto.ApiResponse;
+import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.request.QuizReq;
+import com.project01.skillineserver.entity.LectureEntity;
+import com.project01.skillineserver.entity.QuizEntity;
 import com.project01.skillineserver.service.QuizService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +19,7 @@ public class QuizController {
     private final QuizService quizService;
 
     @PostMapping
-    public ApiResponse<?> save(@RequestBody QuizReq quizReq){
+    public ApiResponse<?> save(@RequestBody QuizReq quizReq) {
         quizService.save(quizReq);
         return ApiResponse.builder()
                 .code(200)
@@ -25,11 +28,26 @@ public class QuizController {
     }
 
     @DeleteMapping(value = "/{quizIds}")
-    public ApiResponse<?> delete(@PathVariable List<Long> quizIds){
+    public ApiResponse<?> delete(@PathVariable List<Long> quizIds) {
         quizService.delete(quizIds);
         return ApiResponse.builder()
                 .code(200)
                 .message("Delete quiz success!")
+                .build();
+    }
+
+    @GetMapping(value = "/lecture")
+    public ApiResponse<PageResponse<QuizEntity>> getQuizByLectureId(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Long courseId,
+            @RequestParam(required = false) String lectureId) {
+        return ApiResponse.<PageResponse<QuizEntity>>builder()
+                .code(200)
+                .data(quizService.getQuizByLectureId(page,size,sort,keyword,courseId,lectureId))
+                .message("Get quiz success!")
                 .build();
     }
 

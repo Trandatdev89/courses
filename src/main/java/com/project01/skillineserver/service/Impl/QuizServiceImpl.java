@@ -1,5 +1,6 @@
 package com.project01.skillineserver.service.Impl;
 
+import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.request.QuizReq;
 import com.project01.skillineserver.entity.QuestionEntity;
 import com.project01.skillineserver.entity.QuizAttemptEntity;
@@ -10,8 +11,12 @@ import com.project01.skillineserver.repository.QuestionRepository;
 import com.project01.skillineserver.repository.QuizAttemptRepository;
 import com.project01.skillineserver.repository.QuizRepository;
 import com.project01.skillineserver.service.QuizService;
+import com.project01.skillineserver.utils.MapUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,5 +70,19 @@ public class QuizServiceImpl implements QuizService {
         quizAttemptRepository.deleteAll(listQuizAttemptNeedRemove);
         questionRepository.deleteAll(listQuestionNeedRemove);
         quizRepository.deleteByIdIn(quizIds);
+    }
+
+    @Override
+    public PageResponse<QuizEntity> getQuizByLectureId(int page,int size,String sort,String keyword,Long courseId,String lectureId) {
+        Sort sortField = MapUtil.parseSort(sort);
+        PageRequest pageRequest = PageRequest.of(page - 1, size, sortField);
+        Page<QuizEntity> pageQuiz = quizRepository.getQuizzes(keyword,courseId,lectureId,pageRequest);
+        return PageResponse.<QuizEntity>builder()
+                .totalElements(pageQuiz.getTotalElements())
+                .totalPages(pageQuiz.getTotalPages())
+                .page(page)
+                .size(size)
+                .list(pageQuiz.getContent())
+                .build();
     }
 }
