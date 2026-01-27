@@ -194,6 +194,25 @@ public class CourseServiceImpl implements CourseService {
         return null;
     }
 
+    @Override
+    public PageResponse<CourseResponse> getCoursesByMySelf(int page, int size, String sort, String keyword, Long categoryId, Long userId) {
+        Sort sortField = MapUtil.parseSort(sort);
+
+        PageRequest pageRequest = PageRequest.of(page - 1, size, sortField);
+
+        Page<CourseEntity> pageCourses = courseRepository.getCoursesByMySelf(keyword,categoryId,userId,pageRequest);
+
+        List<CourseResponse> courseResponseList = pageCourses.getContent().stream().map(courseMapper::toLectureResponse).toList();
+
+        return PageResponse.<CourseResponse>builder()
+                .list(courseResponseList)
+                .page(page)
+                .size(size)
+                .totalElements(pageCourses.getTotalElements())
+                .totalPages(pageCourses.getTotalPages())
+                .build();
+    }
+
     private String resolvePathFile(Object inputFile, String pathFile) throws IOException {
         if (inputFile instanceof MultipartFile multipartFile) {
             return uploadUtil.createPathFile(multipartFile, FileType.IMAGE).toString();

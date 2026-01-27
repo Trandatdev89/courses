@@ -12,4 +12,5 @@ public interface CategoryService {
     void save(CategoryReq category) throws IOException;
     void delete(List<Long> listCateId);
     PageResponse<CategoryResponse> getCategoryPagination(int page, int size, String sort, String keyword);
+    PageResponse<CategoryResponse> getCategoryMySelf(int page, int size, String sort, String keyword,Long userId);
 }

@@ -1,5 +1,6 @@
 package com.project01.skillineserver.controller;
 
+import com.project01.skillineserver.config.CustomUserDetail;
 import com.project01.skillineserver.dto.ApiResponse;
 import com.project01.skillineserver.dto.reponse.CategoryResponse;
 import com.project01.skillineserver.dto.reponse.PageResponse;
@@ -8,6 +9,7 @@ import com.project01.skillineserver.entity.CategoryEntity;
 import com.project01.skillineserver.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -51,4 +53,21 @@ public class CategoryController {
                 .code(200)
                 .build();
     }
+
+    @GetMapping(value = "/my-self")
+    public ApiResponse<PageResponse<CategoryResponse>> getCategoryMySelf(@AuthenticationPrincipal CustomUserDetail customUserDetail,
+                                                                         @RequestParam(defaultValue = "0") int page,
+                                                                         @RequestParam(defaultValue = "10") int size,
+                                                                         @RequestParam(required = false) String sort,
+                                                                         @RequestParam(required = false) String keyword){
+
+        Long userId = customUserDetail.getUser().getId();
+        return ApiResponse.<PageResponse<CategoryResponse>>builder()
+                .message("Get Categories success!")
+                .data(categoryService.getCategoryMySelf(page,size,sort,keyword,userId))
+                .code(200)
+                .build();
+    }
+
+
 }

@@ -21,4 +21,9 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> 
             "from CategoryEntity c " +
             "where c.isActive = true and (?1 is null or lower(c.name) like lower(concat('%',?1,'%')))")
     Page<CategoryEntity> getCategories(String keyword, Pageable pageable);
+
+    @Query("select c " +
+            "from CategoryEntity c " +
+            "where c.isActive = true and c.createdBy = ?2 and (?1 is null or lower(c.name) like lower(concat('%',?1,'%')))")
+    Page<CategoryEntity> getCategoriesMySelf(String keyword, Long userId, Pageable pageable);
 }

@@ -20,4 +20,5 @@ public interface CourseService {
     PageResponse<CourseResponse> getCourses(int page, int size, String sort, String keyword,Long categoryId);
     PageResponse<CourseResponse> searchAdvanceCourse(String[] search,int page,int size,String sort);
     PageResponse<CourseResponse> getCoursesWithCursor(LocalDateTime cursor,String sort,String keyword,int size);
+    PageResponse<CourseResponse> getCoursesByMySelf(int page, int size, String sort, String keyword,Long categoryId,Long userId);
 }

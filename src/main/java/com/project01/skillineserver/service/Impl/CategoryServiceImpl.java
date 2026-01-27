@@ -73,6 +73,24 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public PageResponse<CategoryResponse> getCategoryMySelf(int page, int size, String sort, String keyword, Long userId) {
+        Sort sortField = MapUtil.parseSort(sort);
+        PageRequest pageRequest  = PageRequest.of(page-1, size,sortField);
+
+        Page<CategoryEntity> pageCategories = categoryRepository.getCategoriesMySelf(keyword,userId,pageRequest);
+
+        List<CategoryResponse> list = pageCategories.getContent().stream().map(categoryMapper::toCategoriesResponse).toList();
+
+        return PageResponse.<CategoryResponse>builder()
+                .list(list)
+                .page(page)
+                .size(size)
+                .totalElements(pageCategories.getTotalElements())
+                .totalPages(pageCategories.getTotalPages())
+                .build();
+    }
+
+    @Override
     @Transactional(rollbackFor = {AppException.class})
     public void delete(List<Long> categoryIds) {
         if(categoryIds == null || categoryIds.isEmpty()){
@@ -81,6 +99,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         categoryRepository.deleteCategoryByIds(categoryIds);
     }
+
 
     private String resolveImagePath(Object inputPath, String exitingPath) throws IOException {
         if(inputPath instanceof MultipartFile multipartFile){

@@ -3,7 +3,6 @@ package com.project01.skillineserver.controller;
 import com.project01.skillineserver.dto.ApiResponse;
 import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.request.QuizReq;
-import com.project01.skillineserver.entity.LectureEntity;
 import com.project01.skillineserver.entity.QuizEntity;
 import com.project01.skillineserver.service.QuizService;
 import lombok.RequiredArgsConstructor;

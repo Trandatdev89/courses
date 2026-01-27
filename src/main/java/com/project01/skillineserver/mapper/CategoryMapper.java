@@ -22,6 +22,6 @@ public class CategoryMapper {
             urlThumbnail = DOMAIN_SERVER+category.getPath();
         }
 
-        return new CategoryResponse(category.getId(), category.getName(), urlThumbnail);
+        return new CategoryResponse(category.getId(), category.getName(), urlThumbnail,category.isActive());
     }
 }

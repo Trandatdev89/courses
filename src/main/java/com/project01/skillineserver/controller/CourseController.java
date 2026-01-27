@@ -1,5 +1,6 @@
 package com.project01.skillineserver.controller;
 
+import com.project01.skillineserver.config.CustomUserDetail;
 import com.project01.skillineserver.dto.ApiResponse;
 import com.project01.skillineserver.dto.reponse.CourseResponse;
 import com.project01.skillineserver.dto.reponse.PageResponse;
@@ -12,6 +13,7 @@ import com.project01.skillineserver.specification.CourseSpecifications;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -50,6 +52,21 @@ public class CourseController {
                 .code(200)
                 .message("Success")
                 .data(courseService.getCourses(page, size, sort, keyword,categoryId))
+                .build();
+    }
+
+    @GetMapping(value = "/my-self")
+    public ApiResponse<PageResponse<CourseResponse>> getCoursesByMySelf(@AuthenticationPrincipal CustomUserDetail customUserDetail,
+                                                                        @RequestParam(defaultValue = "0") int page,
+                                                                        @RequestParam(defaultValue = "10") int size,
+                                                                        @RequestParam(required = false) String sort,
+                                                                        @RequestParam(required = false) Long categoryId,
+                                                                        @RequestParam(required = false) String keyword) {
+        Long userId = customUserDetail.getUser().getId();
+        return ApiResponse.<PageResponse<CourseResponse>>builder()
+                .code(200)
+                .message("Success")
+                .data(courseService.getCoursesByMySelf(page, size, sort, keyword,categoryId,userId))
                 .build();
     }
 

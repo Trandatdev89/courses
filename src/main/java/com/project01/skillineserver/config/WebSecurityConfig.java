@@ -92,7 +92,7 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(http -> http
                         .requestMatchers(HttpMethod.GET, "/product/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/category/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/category/pagination").permitAll()
                         .requestMatchers(HttpMethod.GET, "/review/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/uploads/image/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/uploads/lecture/**").permitAll()

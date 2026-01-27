@@ -32,4 +32,10 @@ public interface CourseRepository extends JpaRepository<CourseEntity,Long>, JpaS
             "and (?2 is null or c.categoryId = ?2 )")
     Page<CourseEntity> getCourses(String title,Long category_id, Pageable pageable);
 
+    @Query("select c " +
+            "from CourseEntity c " +
+            "where c.status = true and c.createdBy=?3 and(?1 is null or c.title like lower(concat('%',?1,'%'))) " +
+            "and (?2 is null or c.categoryId = ?2 )")
+    Page<CourseEntity> getCoursesByMySelf(String title,Long category_id,Long userId,Pageable pageable);
+
 }
