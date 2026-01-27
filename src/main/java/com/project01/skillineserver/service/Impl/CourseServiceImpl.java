@@ -70,7 +70,9 @@ public class CourseServiceImpl implements CourseService {
         courseEntityInDB.setLevel(courseReq.level());
         courseEntityInDB.setDiscountPrice(courseReq.discount());
         courseEntityInDB.setTitle(courseReq.title());
+        courseEntityInDB.setRate(courseReq.rate());
         courseEntityInDB.setThumbnail_url(pathImage);
+
 
         return courseRepository.save(courseEntityInDB);
     }

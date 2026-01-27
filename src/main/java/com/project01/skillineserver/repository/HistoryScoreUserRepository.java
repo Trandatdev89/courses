@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Set;
 
 public interface HistoryScoreUserRepository extends JpaRepository<HistoryScoreUserEntity, Long> {
 
@@ -16,12 +17,14 @@ public interface HistoryScoreUserRepository extends JpaRepository<HistoryScoreUs
     int deleteByAttemptQuizIdIn(List<Long> attemptQuizIds);
 
     @Query("""
-                select hsu.score,hauc.id.answerId as answerUserChoice
+                select hsu.score,
+                hauc.id.answerId as answerUserChoice,
+                hsu.questionId as questionId
                 from HistoryScoreUserEntity hsu
                 inner join HistoryAnswerUserChoiceEntity hauc on hauc.id.historyAnswerUserId = hsu.id
                 where hsu.attemptQuizId = ?1
-                  and hsu.questionId = ?2
+                  and hsu.questionId in ?2
             """)
-    List<AnswerUserChoiceProjection> findByAttemptQuizIdAndQuestionId(Long attemptQuizId, Long questionId);
+    List<AnswerUserChoiceProjection> findByAttemptQuizIdAndQuestionIdIn(Long attemptQuizId, Set<Long> questionId);
 
 }

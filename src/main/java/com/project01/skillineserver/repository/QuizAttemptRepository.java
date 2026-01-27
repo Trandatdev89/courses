@@ -55,8 +55,8 @@ public interface QuizAttemptRepository extends JpaRepository<QuizAttemptEntity, 
     @Query(value = """
             SELECT
                 qa.id                    AS attemptId,
-                qa.submitted_at,
-                qa.total_score,
+                qa.submitted_at          AS submittedAt,
+                qa.total_score           AS totalScore,
 
                 qs.id                    AS questionId,
                 qs.content               AS questionContent,
