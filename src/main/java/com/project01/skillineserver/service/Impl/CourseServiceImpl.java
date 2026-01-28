@@ -36,11 +36,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -94,22 +93,27 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public void purchaseCourse(List<Long> idCourse, Long userId) {
-        List<EnrollmentEntity> enrollmentEntities = new ArrayList<>();
-        for (Long courseId : idCourse) {
-            boolean isExitsCourse = courseRepository.existsById(courseId);
+        List<Long> existingCourseIds = courseRepository.findAllIdsByIdIn(idCourse);
 
-            if(!isExitsCourse){
-                throw new AppException(ErrorCode.COURSE_NOT_FOUND);
-            }
+        if (existingCourseIds.size() != idCourse.size()) {
 
-            EnrollmentEntity enrollmentEntity = EnrollmentEntity.builder()
-                    .userId(userId)
-                    .courseId(courseId)
-                    .enrolledAt(Instant.now())
-                    .progress(0L)
-                    .build();
-            enrollmentEntities.add(enrollmentEntity);
+//            Set<Long> existingSet = new HashSet<>(existingCourseIds);
+//            List<Long> notFoundIds = idCourse.stream()
+//                    .filter(id -> !existingSet.contains(id))
+//                    .collect(Collectors.toList());
+
+            throw new AppException(ErrorCode.COURSE_NOT_FOUND);
         }
+
+        List<EnrollmentEntity> enrollmentEntities = idCourse.stream()
+                .map(courseId -> EnrollmentEntity.builder()
+                        .userId(userId)
+                        .courseId(courseId)
+                        .enrolledAt(Instant.now())
+                        .progress(0L)
+                        .build())
+                .collect(Collectors.toList());
+
         enrollmentRepository.saveAll(enrollmentEntities);
     }
 

@@ -19,6 +19,9 @@ public class CourseResponse {
     private String description;
     private boolean status;
     private BigDecimal price;
+    private String discount;
+    private Double rate;
     private String createAt;
     private String updateAt;
+    private Long categoryId;
 }

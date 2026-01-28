@@ -1,5 +1,6 @@
 package com.project01.skillineserver.service.Impl;
 
+import com.project01.skillineserver.dto.reponse.CourseResponse;
 import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.request.OrderReq;
 import com.project01.skillineserver.dto.request.PaymentReq;
@@ -9,6 +10,7 @@ import com.project01.skillineserver.entity.OrderEntity;
 import com.project01.skillineserver.entity.UserEntity;
 import com.project01.skillineserver.enums.*;
 import com.project01.skillineserver.excepion.CustomException.AppException;
+import com.project01.skillineserver.mapper.CourseMapper;
 import com.project01.skillineserver.projection.OrderProjection;
 import com.project01.skillineserver.repository.CourseRepository;
 import com.project01.skillineserver.repository.OrderDetailRepository;
@@ -40,6 +42,7 @@ public class OrderServiceImpl implements OrderService {
     private final UserRepository userRepository;
     private final CourseRepository courseRepository;
     private final OrderDetailRepository orderDetailRepository;
+    private final CourseMapper courseMapper;
 
     @Override
     public PageResponse<OrderProjection> getOrders(int page, int size, String sort, String keyword) {
@@ -92,6 +95,12 @@ public class OrderServiceImpl implements OrderService {
         orderDetailRepository.saveAll(orderDetailEntities);
 
         return order;
+    }
+
+    @Override
+    public List<CourseResponse> getOrderDetailByOrderId(Long orderId) {
+        List<CourseEntity> courseInDB =  orderRepository.getOrderDetailByOrderId(orderId);
+        return courseInDB.stream().map(courseMapper::toLectureResponse).toList();
     }
 
 

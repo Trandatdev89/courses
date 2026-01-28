@@ -1,11 +1,14 @@
 package com.project01.skillineserver.repository;
 
+import com.project01.skillineserver.entity.CourseEntity;
 import com.project01.skillineserver.entity.OrderEntity;
 import com.project01.skillineserver.projection.OrderProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
 
 
 public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
@@ -24,4 +27,12 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
             "INNER JOIN UserEntity us ON us.id = od.userId " +
             "WHERE :keyword IS NULL OR LOWER(us.username) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<OrderProjection> getOrders(String keyword, Pageable pageable);
+
+    @Query("""
+            select co from OrderEntity ord
+            inner join OrderDetailEntity od on ord.id = od.orderId
+            inner join CourseEntity co on co.id = od.courseId
+            where od.orderId = :orderId
+            """)
+    List<CourseEntity> getOrderDetailByOrderId(Long orderId);
 }

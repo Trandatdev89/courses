@@ -37,7 +37,10 @@ public class CourseMapper {
                 .level(courseEntity.getLevel())
                 .price(courseEntity.getPrice())
                 .description(courseEntity.getDescription())
+                .rate(courseEntity.getRate())
+                .discount(courseEntity.getDiscountPrice())
                 .status(courseEntity.isStatus())
+                .categoryId(courseEntity.getCategoryId())
                 .createAt(dateUtil.format(courseEntity.getCreatedAt()))
                 .updateAt(dateUtil.format(courseEntity.getUpdatedAt()))
                 .build();

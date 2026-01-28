@@ -38,4 +38,7 @@ public interface CourseRepository extends JpaRepository<CourseEntity,Long>, JpaS
             "and (?2 is null or c.categoryId = ?2 )")
     Page<CourseEntity> getCoursesByMySelf(String title,Long category_id,Long userId,Pageable pageable);
 
+    @Query("SELECT c.id FROM CourseEntity c WHERE c.id IN :ids")
+    List<Long> findAllIdsByIdIn(@Param("ids") List<Long> ids);
+
 }
