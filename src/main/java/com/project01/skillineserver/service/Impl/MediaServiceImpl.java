@@ -214,7 +214,8 @@ public class MediaServiceImpl implements MediaService {
                 pathLectureInDB, outputPath, outputPath
         );
 
-        ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c", ffmpegCmd);
+        ProcessBuilder processBuilder = new ProcessBuilder("/bin/bash", "-c", ffmpegCmd);
+
         processBuilder.inheritIO();
 
         Process process = processBuilder.start();

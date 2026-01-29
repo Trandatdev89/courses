@@ -16,4 +16,5 @@ public class AuthResponse {
     private Long userId;
     private Role role;
     private String deviceId;
+    private String avatar;
 }

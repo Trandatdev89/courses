@@ -163,15 +163,19 @@ public class CourseServiceImpl implements CourseService {
 
             for (SearchCriteria searchOpt : searchCriterias) {
 
-                if (searchOpt.getKey().equals("categoryId")) {
-                    specification = specification.and((root, query, criteriaBuilder) -> {
-                        return customCourseRepository.joinTableRelationOneMany(CourseEntity.class, CategoryEntity.class, root, criteriaBuilder, query, searchOpt);
-                    });
-                } else {
-                    specification = specification.and((root, query, criteriaBuilder) -> {
-                        return new SearchSpecification<CourseEntity>(searchOpt).toPredicate(root, query, criteriaBuilder);
-                    });
-                }
+                specification = specification.and((root, query, criteriaBuilder) -> {
+                    return new SearchSpecification<CourseEntity>(searchOpt).toPredicate(root, query, criteriaBuilder);
+                });
+
+//                if (searchOpt.getKey().equals("categoryId")) {
+//                    specification = specification.and((root, query, criteriaBuilder) -> {
+//                        return customCourseRepository.joinTableRelationOneMany(CourseEntity.class, CategoryEntity.class, root, criteriaBuilder, query, searchOpt);
+//                    });
+//                } else {
+//                    specification = specification.and((root, query, criteriaBuilder) -> {
+//                        return new SearchSpecification<CourseEntity>(searchOpt).toPredicate(root, query, criteriaBuilder);
+//                    });
+//                }
             }
 
             listCourseResponses = courseRepository.findAll(specification, pageable);

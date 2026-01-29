@@ -5,22 +5,12 @@ import com.project01.skillineserver.dto.reponse.LectureResponse;
 import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.request.LectureReq;
 import com.project01.skillineserver.entity.LectureEntity;
-import com.project01.skillineserver.service.CourseProgressService;
 import com.project01.skillineserver.service.LectureService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -42,12 +32,12 @@ public class LectureController {
 
     @GetMapping
     public ApiResponse<PageResponse<LectureResponse>> listLecture(@RequestParam(defaultValue = "0") int page,
-                                                                @RequestParam(defaultValue = "10") int size,
-                                                                @RequestParam(required = false) String sort,
-                                                                @RequestParam(required = false) String keyword,
-                                                                @RequestParam Long courseId) {
+                                                                  @RequestParam(defaultValue = "10") int size,
+                                                                  @RequestParam(required = false) String sort,
+                                                                  @RequestParam(required = false) String keyword,
+                                                                  @RequestParam Long courseId) {
         return ApiResponse.<PageResponse<LectureResponse>>builder()
-                .data(lectureService.getListLecture(page,size,sort,keyword,courseId))
+                .data(lectureService.getListLecture(page, size, sort, keyword, courseId))
                 .message("success!")
                 .code(200)
                 .build();

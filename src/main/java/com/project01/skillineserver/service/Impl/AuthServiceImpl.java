@@ -149,6 +149,7 @@ public class AuthServiceImpl implements AuthService {
                 .accessToken(securityUtil.generateToken(Objects.requireNonNull(AuthenticationUtil.getUserDetail()), TokenType.ACCESS_TOKEN,currentDeviceId))
                 .refreshToken(securityUtil.generateToken(Objects.requireNonNull(AuthenticationUtil.getUserDetail()), TokenType.REFRESH_TOKEN,null))
                 .role(user.getUser().getRole())
+                .avatar(user.getUser().getAvatar())
                 .build();
     }
 

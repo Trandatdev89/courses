@@ -32,4 +32,10 @@ public interface LectureRepository extends JpaRepository<LectureEntity, String> 
             "where le.courseId=?2 and co.status = true and" +
             "(?1 is null or le.title like lower(concat('%',?1,'%')))")
     Page<LectureEntity> getLectures(String keyword, Long courseId, PageRequest pageRequest);
+
+
+    @Query(value = """
+            select max(le.position) as max_position from lecture le where le.course_id = :courseId
+            """,nativeQuery = true)
+    Integer findMaxPosition(Long courseId);
 }

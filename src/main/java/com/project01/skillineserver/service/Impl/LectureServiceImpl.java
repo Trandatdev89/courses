@@ -45,8 +45,10 @@ public class LectureServiceImpl implements LectureService {
                 .orElseThrow(() -> new AppException(ErrorCode.LECTURE_NOT_FOUND))
                 : new LectureEntity();
 
+        Integer maxPositionLectureOfCourse = lectureRepository.findMaxPosition(lectureReq.courseId());
+
         lectureEntity.setTitle(lectureReq.title());
-        lectureEntity.setPosition(lectureReq.position());
+        lectureEntity.setPosition(maxPositionLectureOfCourse!=null ? maxPositionLectureOfCourse+1 : 0);
         lectureEntity.setCourseId(lectureReq.courseId());
         lectureEntity.setUpdatedAt(Instant.now()) ;
 

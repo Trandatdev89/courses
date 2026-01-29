@@ -20,21 +20,21 @@ public class LectureMapper {
     @Value("${domain.server}")
     private String DOMAIN_SERVER;
 
+    @Value("${upload.directory.image}")
+    private String PATH;
+
     public LectureResponse toLectureResponse(LectureEntity lectureEntity) {
 
         CourseProjection courseProjection = lectureRepository.getCourseWithCategory(lectureEntity.getCourseId());
 
-        String urlThumbnail = DOMAIN_SERVER+lectureEntity.getImage();
-
-        String duration = lectureEntity.getDuration()+" hours";
-
         return LectureResponse.builder()
                 .id(lectureEntity.getId())
-                .courseName(courseProjection.getTitle())
+                .processStatus(lectureEntity.getProcessStatus())
                 .CategoryName(courseProjection.getCategoryName())
                 .title(lectureEntity.getTitle())
-                .urlThumbnail(urlThumbnail)
-                .duration(duration)
+                .urlThumbnail(DOMAIN_SERVER+PATH+"/"+lectureEntity.getImage())
+                .duration(lectureEntity.getDuration()+" hours")
+                .urlVideo(DOMAIN_SERVER+lectureEntity.getFilePath())
                 .position(lectureEntity.getPosition())
                 .createAt(dateUtil.format(lectureEntity.getCreatedAt()))
                 .updateAt(dateUtil.format(lectureEntity.getUpdatedAt()))
