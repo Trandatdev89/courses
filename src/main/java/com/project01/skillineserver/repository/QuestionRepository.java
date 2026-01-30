@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Set;
 
 public interface QuestionRepository extends JpaRepository<QuestionEntity, Long> {
     QuestionEntity findByQuizId(Long quizId);
@@ -25,4 +26,6 @@ public interface QuestionRepository extends JpaRepository<QuestionEntity, Long> 
             where qu.quiz_id=1;
                         """, nativeQuery = true)
     List<QuestionExamProjection> findQuestionByQuizId(Long quizId);
+
+    List<QuestionEntity> findAllByIdIn(Set<Long> ids);
 }

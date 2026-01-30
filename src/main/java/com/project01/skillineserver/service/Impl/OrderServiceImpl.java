@@ -102,6 +102,4 @@ public class OrderServiceImpl implements OrderService {
         List<CourseEntity> courseInDB =  orderRepository.getOrderDetailByOrderId(orderId);
         return courseInDB.stream().map(courseMapper::toLectureResponse).toList();
     }
-
-
 }

@@ -50,7 +50,7 @@ public class LectureServiceImpl implements LectureService {
         lectureEntity.setTitle(lectureReq.title());
         lectureEntity.setPosition(maxPositionLectureOfCourse!=null ? maxPositionLectureOfCourse+1 : 0);
         lectureEntity.setCourseId(lectureReq.courseId());
-        lectureEntity.setUpdatedAt(Instant.now()) ;
+        lectureEntity.setUpdatedAt(Instant.now());
 
         if(!isUpdate){
             lectureEntity.setCreatedAt(Instant.now());
@@ -66,7 +66,6 @@ public class LectureServiceImpl implements LectureService {
                 lectureEntity.setDuration((String) videoInfo.get("duration"));
                 lectureEntity.setImage((String) videoInfo.get("image"));
             }
-
         }
         LectureEntity lectureNeedSave = lectureRepository.save(lectureEntity);
 

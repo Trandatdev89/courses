@@ -9,4 +9,5 @@ import java.util.Set;
 public interface AnswerRepository extends JpaRepository<AnswerEntity,Long> {
     List<AnswerEntity> findAllByQuestionId(Long questionId);
     List<AnswerEntity> findAllByQuestionIdIn(Set<Long> questionId);
+    List<AnswerEntity> findAllByIdIn(Set<Long> answerIds);
 }

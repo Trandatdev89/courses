@@ -7,8 +7,6 @@ import jakarta.persistence.criteria.Root;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.awt.geom.QuadCurve2D;
-
 @Service
 public class CourseSpecifications {
 

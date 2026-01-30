@@ -35,12 +35,43 @@ public class QuestionServiceImpl implements QuestionService {
     public void save(SaveQuestionListReq saveQuestionListReq) {
         List<QuestionEntity> questionsNeedSave = new ArrayList<>();
         List<AnswerEntity> answerNeedSave = new ArrayList<>();
+
         if (saveQuestionListReq.getQuestions() == null || saveQuestionListReq.getQuestions().isEmpty()) {
             throw new AppException(ErrorCode.QUESTION_EMPTY);
         }
+
+        Set<Long> questionIds = saveQuestionListReq
+                .getQuestions()
+                .stream()
+                .map(QuestionReq::id)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        Set<Long> newAnswerIds = saveQuestionListReq.getQuestions()
+                .stream()
+                .flatMap(q -> q.answerReqs().stream())
+                .map(AnswerReq::id)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        Map<Long,QuestionEntity> mapQuestion = questionIds.isEmpty()
+                ? Collections.emptyMap()
+                : questionRepository.findAllByIdIn(questionIds)
+                .stream()
+                .collect(Collectors.toMap(QuestionEntity::getId,questionEntity -> questionEntity));
+
+        Map<Long,AnswerEntity> mapAnswer = newAnswerIds.isEmpty()
+                ? Collections.emptyMap()
+                : answerRepository.findAllByIdIn(newAnswerIds)
+                .stream()
+                .collect(Collectors.toMap(AnswerEntity::getId,answer -> answer));
+
+        if(mapQuestion.size()!=questionIds.size()){
+            throw new AppException(ErrorCode.QUESTION_NOT_EXITS);
+        }
+
         for (QuestionReq questionReq : saveQuestionListReq.getQuestions()) {
-            boolean isUpdate = questionReq.id() != null;
-            QuestionEntity question = isUpdate ? questionRepository.findById(questionReq.id()).orElseThrow(() -> new AppException(ErrorCode.QUESTION_NOT_EXITS))
+            QuestionEntity question = questionReq.id()!=null ? mapQuestion.get(questionReq.id())
                     : new QuestionEntity();
 
             question.setQuizId(saveQuestionListReq.getQuizId());
@@ -59,9 +90,7 @@ public class QuestionServiceImpl implements QuestionService {
             QuestionReq questionReq = saveQuestionListReq.getQuestions().get(i);
 
             for (AnswerReq answerReq : questionReq.answerReqs()) {
-                AnswerEntity answer = Optional.ofNullable(answerReq.id())
-                        .flatMap(answerRepository::findById)
-                        .orElseGet(AnswerEntity::new);
+                AnswerEntity answer =  answerReq.id()!=null ? mapAnswer.get(answerReq.id()) : new AnswerEntity();
                 answer.setQuestionId(question.getId());
                 answer.setContent(answerReq.content());
                 answer.setCorrect(answerReq.isCorrect());

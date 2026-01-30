@@ -36,12 +36,11 @@ public class QuizServiceImpl implements QuizService {
     @Transactional
     public void save(QuizReq quizReq) {
         boolean isUpdate = quizReq.id()!=null;
-        QuizEntity quizEntity;
-        if(isUpdate){
-            quizEntity = quizRepository.findById(quizReq.id()).orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_EXITS));
-        }else{
-            quizEntity = new QuizEntity();
-        }
+        QuizEntity quizEntity = isUpdate
+                ? quizRepository
+                .findById(quizReq.id())
+                .orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_EXITS)) :
+                new QuizEntity();
 
         quizEntity.setTitle(quizReq.title());
         quizEntity.setDescription(quizReq.desc());
