@@ -22,8 +22,10 @@ import com.project01.skillineserver.service.AuthService;
 import com.project01.skillineserver.service.EmailService;
 import com.project01.skillineserver.service.UserService;
 import com.project01.skillineserver.utils.AuthenticationUtil;
+import com.project01.skillineserver.utils.CookieUtil;
 import com.project01.skillineserver.utils.SecurityUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -64,7 +66,7 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public AuthResponse login(LoginRequest loginRequest,HttpServletRequest request) {
+    public AuthResponse login(LoginRequest loginRequest,HttpServletRequest request, HttpServletResponse response) {
 
         CustomUserDetail user = (CustomUserDetail) userDetailsService.loadUserByUsername(loginRequest.getUsername());
         UserEntity userInDB = user.getUser();
@@ -140,14 +142,18 @@ public class AuthServiceImpl implements AuthService {
 
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
+        CookieUtil.setAccessTokenCookieHttpOnly(securityUtil.generateToken(Objects
+                .requireNonNull(AuthenticationUtil.getUserDetail()), TokenType.ACCESS_TOKEN,currentDeviceId),response);
+
+        CookieUtil.setRefreshTokenCookieHttpOnly(securityUtil.generateToken(Objects
+                .requireNonNull(AuthenticationUtil.getUserDetail()), TokenType.REFRESH_TOKEN,null),response);
+
         return AuthResponse.builder()
                 .authenticated(true)
                 .userId(user.getUser().getId())
                 .username(user.getUsername())
                 .role(user.getUser().getRole())
                 .deviceId(currentDeviceId)
-                .accessToken(securityUtil.generateToken(Objects.requireNonNull(AuthenticationUtil.getUserDetail()), TokenType.ACCESS_TOKEN,currentDeviceId))
-                .refreshToken(securityUtil.generateToken(Objects.requireNonNull(AuthenticationUtil.getUserDetail()), TokenType.REFRESH_TOKEN,null))
                 .role(user.getUser().getRole())
                 .avatar(user.getUser().getAvatar())
                 .build();
@@ -197,13 +203,10 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public boolean introspect(TokenRequest tokenRequest, TokenType tokenType) {
-        boolean isTokenAccess = tokenType.equals(TokenType.ACCESS_TOKEN);
+    public boolean introspect(String token, TokenType tokenType) {
         boolean check = false;
         try {
-            securityUtil.verifyToken(isTokenAccess
-                            ? tokenRequest.getAccessToken()
-                            : tokenRequest.getRefreshToken(),
+            securityUtil.verifyToken(token,
                     tokenType);
             check = true;
         } catch (ParseException e) {
@@ -215,14 +218,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String refreshToken(TokenRequest tokenRequest) throws ParseException {
-        log.info("type of token : {}", tokenRequest.getTokenType());
-        boolean check = introspect(tokenRequest, tokenRequest.getTokenType());
+    public String refreshToken(String refreshToken) throws ParseException {
+
+        boolean check = introspect(refreshToken,TokenType.REFRESH_TOKEN);
         if (!check) {
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }
 
-        String username = SecurityUtil.extractUsernameByToken(tokenRequest.getRefreshToken());
+        String username = SecurityUtil.extractUsernameByToken(refreshToken);
 
         CustomUserDetail user = (CustomUserDetail)userDetailsService.loadUserByUsername(username);
 

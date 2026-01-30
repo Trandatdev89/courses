@@ -7,9 +7,12 @@ import com.project01.skillineserver.dto.request.RegisterRequest;
 import com.project01.skillineserver.dto.request.TokenRequest;
 import com.project01.skillineserver.enums.TokenType;
 import com.project01.skillineserver.service.AuthService;
+import com.project01.skillineserver.utils.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -22,25 +25,33 @@ import java.text.ParseException;
 @Slf4j
 public class AuthController {
 
+    @Value("${jwt.accessTokenName}")
+    private String accessTokenName;
+
+    @Value("${jwt.refreshTokenName}")
+    private String refreshTokenName;
+
     private final AuthService authService;
 
     @PostMapping(value = "/login")
-    public ApiResponse<AuthResponse> login(@RequestBody LoginRequest loginRequest,HttpServletRequest request) {
+    public ApiResponse<AuthResponse> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) {
         return ApiResponse.<AuthResponse>builder()
                 .code(200)
                 .message("Login Successful !")
-                .data(authService.login(loginRequest,request))
+                .data(authService.login(loginRequest,request,response))
                 .build();
     }
 
-    @PostMapping(value = "/introspect-token")
-    public ApiResponse<Boolean> introspect(@RequestBody TokenRequest tokenRequest) {
-        TokenType tokenType = tokenRequest.getTokenType();
+    @GetMapping(value = "/introspect-token")
+    public ApiResponse<Boolean> introspect(@RequestParam TokenType tokenType, HttpServletRequest request) {
+
         log.info("type token: {}", tokenType);
+        String nameToken = tokenType == TokenType.ACCESS_TOKEN ? accessTokenName : refreshTokenName;
+        String token = CookieUtil.getTokenFromCookie(nameToken ,request);
         return ApiResponse.<Boolean>builder()
                 .code(200)
                 .message("Token Valid!")
-                .data(authService.introspect(tokenRequest, tokenType))
+                .data(authService.introspect(token, tokenType))
                 .build();
     }
 
@@ -72,11 +83,12 @@ public class AuthController {
     }
 
     @PostMapping(value = "/refresh-token")
-    public ApiResponse<String> refreshToken(@RequestBody TokenRequest tokenRequest) throws ParseException {
+    public ApiResponse<String> refreshToken(@RequestBody TokenRequest tokenRequest, HttpServletRequest request) throws ParseException {
+        String token = CookieUtil.getTokenFromCookie(refreshTokenName,request);
         return ApiResponse.<String>builder()
                 .code(200)
                 .message("Refresh Token Success!")
-                .data(authService.refreshToken(tokenRequest))
+                .data(authService.refreshToken(token))
                 .build();
     }
 

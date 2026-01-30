@@ -112,9 +112,10 @@ public class WebSecurityConfig {
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.addAllowedOrigin("*");
+        corsConfiguration.addAllowedOrigin("http://localhost:5173");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
+        corsConfiguration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
         return new CorsFilter(urlBasedCorsConfigurationSource);
@@ -133,7 +134,7 @@ public class WebSecurityConfig {
                 .withSecretKey(securityUtil.secretKey()).macAlgorithm(MacAlgorithm.HS256).build();
         return token -> {
             try {
-                var responseToken = authService.introspect(TokenRequest.builder().accessToken(token).build(), TokenType.ACCESS_TOKEN);
+                var responseToken = authService.introspect(token, TokenType.ACCESS_TOKEN);
                 if (!responseToken) {
                     throw new AppException(ErrorCode.INVALID_TOKEN);
                 }
