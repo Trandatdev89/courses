@@ -5,4 +5,5 @@ public class AppConstants {
     public static final int MAX_FAILED_ATTEMPTS = 5;
     public static final long LOCK_TIME_DURATION = 15; // 15 phút
     public static final int CHANGE_PASSWORD_PERIODIC = 60;
+    public static final String ACCESS_TOKEN = "accessToken";
 }

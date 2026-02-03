@@ -58,6 +58,9 @@ public class WebSecurityConfig {
     @Lazy
     private AuthService authService;
 
+    @Autowired
+    private CookieBearerTokenResolver cookieBearerTokenResolver;
+
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
@@ -100,6 +103,7 @@ public class WebSecurityConfig {
                         .anyRequest().authenticated())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .oauth2ResourceServer(oauth -> oauth
+                        .bearerTokenResolver(cookieBearerTokenResolver)
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                         .accessDeniedHandler(new JwtAccessDeniedEntryPoint())
                         .jwt(config -> config

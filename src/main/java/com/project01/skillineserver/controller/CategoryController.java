@@ -5,9 +5,9 @@ import com.project01.skillineserver.dto.ApiResponse;
 import com.project01.skillineserver.dto.reponse.CategoryResponse;
 import com.project01.skillineserver.dto.reponse.PageResponse;
 import com.project01.skillineserver.dto.request.CategoryReq;
-import com.project01.skillineserver.entity.CategoryEntity;
 import com.project01.skillineserver.service.CategoryService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping(value = "/api/category")
 public class CategoryController {
 
@@ -61,6 +62,7 @@ public class CategoryController {
                                                                          @RequestParam(required = false) String sort,
                                                                          @RequestParam(required = false) String keyword){
 
+        log.info("custom user detril:{}",customUserDetail.getUser());
         Long userId = customUserDetail.getUser().getId();
         return ApiResponse.<PageResponse<CategoryResponse>>builder()
                 .message("Get Categories success!")
@@ -68,6 +70,4 @@ public class CategoryController {
                 .code(200)
                 .build();
     }
-
-
 }

@@ -209,9 +209,7 @@ public class AuthServiceImpl implements AuthService {
             securityUtil.verifyToken(token,
                     tokenType);
             check = true;
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        } catch (JOSEException e) {
+        } catch (ParseException | JOSEException e) {
             throw new RuntimeException(e);
         }
         return check;

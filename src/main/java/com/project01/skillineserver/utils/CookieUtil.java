@@ -1,9 +1,12 @@
 package com.project01.skillineserver.utils;
 
+
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class CookieUtil {
 
     public static void setAccessTokenCookieHttpOnly(String accessToken, HttpServletResponse response){
@@ -11,7 +14,7 @@ public class CookieUtil {
         accessTokenCookie.setHttpOnly(true);
         accessTokenCookie.setSecure(false);
         accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(15 * 60);
+        accessTokenCookie.setMaxAge(24 * 60 * 60); //1 ngay
         accessTokenCookie.setAttribute("SameSite", "Strict");
         response.addCookie(accessTokenCookie);
     }
