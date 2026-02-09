@@ -212,11 +212,12 @@ public class AuthServiceImpl implements AuthService {
         } catch (ParseException | JOSEException e) {
             throw new RuntimeException(e);
         }
+
         return check;
     }
 
     @Override
-    public String refreshToken(String refreshToken) throws ParseException {
+    public String refreshToken(String refreshToken, HttpServletResponse response) throws ParseException {
 
         boolean check = introspect(refreshToken,TokenType.REFRESH_TOKEN);
         if (!check) {
@@ -230,6 +231,8 @@ public class AuthServiceImpl implements AuthService {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
 
+        CookieUtil.setAccessTokenCookieHttpOnly(securityUtil.generateToken(Objects
+                .requireNonNull(AuthenticationUtil.getUserDetail()), TokenType.ACCESS_TOKEN,null),response);
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
         return securityUtil.generateToken(Objects.requireNonNull(AuthenticationUtil.getUserDetail()), TokenType.ACCESS_TOKEN,null);
@@ -294,6 +297,11 @@ public class AuthServiceImpl implements AuthService {
        if(!userExist){
            throw new AppException(ErrorCode.USER_NOT_FOUND);
        }
+    }
+
+    @Override
+    public AuthResponse me(String token) {
+        return null;
     }
 
     private void increaseAttemptLogin(UserEntity user) {

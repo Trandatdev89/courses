@@ -1,5 +1,6 @@
 package com.project01.skillineserver.service.Impl;
 
+import com.project01.skillineserver.dto.request.ChangeEmailReq;
 import com.project01.skillineserver.dto.request.ChangePasswordReq;
 import com.project01.skillineserver.entity.UserEntity;
 import com.project01.skillineserver.enums.ErrorCode;
@@ -41,6 +42,16 @@ public class UserServiceImpl implements UserService {
 
         user.setLastTimeChangePassword(Instant.now());
         user.setPassword(passwordEncoder.encode(changePasswordReq.newPassword()));
+        userRepository.save(user);
+    }
+
+    @Override
+    public void changeEmail(String newEmail, Long userId) {
+        UserEntity user = userRepository
+                .findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        user.setEmail(newEmail);
         userRepository.save(user);
     }
 

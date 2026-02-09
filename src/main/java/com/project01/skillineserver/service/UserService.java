@@ -6,4 +6,5 @@ import com.project01.skillineserver.entity.UserEntity;
 public interface UserService {
     UserEntity getMyInfo(Long id);
     void changePassword(ChangePasswordReq changePasswordReq,Long userId);
+    void changeEmail(String newEmail,Long userId);
 }

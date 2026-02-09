@@ -1,10 +1,10 @@
 package com.project01.skillineserver.controller;
 
+import com.project01.skillineserver.constants.AppConstants;
 import com.project01.skillineserver.dto.ApiResponse;
 import com.project01.skillineserver.dto.reponse.AuthResponse;
 import com.project01.skillineserver.dto.request.LoginRequest;
 import com.project01.skillineserver.dto.request.RegisterRequest;
-import com.project01.skillineserver.dto.request.TokenRequest;
 import com.project01.skillineserver.enums.TokenType;
 import com.project01.skillineserver.service.AuthService;
 import com.project01.skillineserver.utils.CookieUtil;
@@ -13,11 +13,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -55,6 +56,16 @@ public class AuthController {
                 .build();
     }
 
+    @GetMapping(value = "/me")
+    public ApiResponse<AuthResponse> me(HttpServletRequest request) {
+        String token = CookieUtil.getTokenFromCookie(AppConstants.ACCESS_TOKEN,request);
+        return ApiResponse.<AuthResponse>builder()
+                .code(200)
+                .message("Token Valid!")
+                .data(authService.me(token))
+                .build();
+    }
+
     @PostMapping("/register")
     public ApiResponse<?> register(@RequestBody RegisterRequest registerDTO) throws IllegalAccessException {
         authService.createAccount(registerDTO);
@@ -83,13 +94,22 @@ public class AuthController {
     }
 
     @PostMapping(value = "/refresh-token")
-    public ApiResponse<String> refreshToken(@RequestBody TokenRequest tokenRequest, HttpServletRequest request) throws ParseException {
-        String token = CookieUtil.getTokenFromCookie(refreshTokenName,request);
+    public ApiResponse<String> refreshToken(HttpServletRequest request, HttpServletResponse response) throws ParseException {
+        String refreshToken = CookieUtil.getTokenFromCookie(refreshTokenName,request);
         return ApiResponse.<String>builder()
                 .code(200)
                 .message("Refresh Token Success!")
-                .data(authService.refreshToken(token))
+                .data(authService.refreshToken(refreshToken,response))
                 .build();
+    }
+
+    @GetMapping(value = "/csrf-token")
+    public Map<String,String> getCsrfToken(CsrfToken csrfToken){
+        Map<String,String> response = new HashMap<>();
+        response.put("csrf-token",csrfToken.getToken());
+        response.put("headerName", csrfToken.getHeaderName());
+        response.put("parameterName", csrfToken.getParameterName());
+        return response;
     }
 
 }
