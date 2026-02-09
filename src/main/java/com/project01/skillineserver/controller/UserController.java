@@ -5,17 +5,14 @@ import com.project01.skillineserver.constants.AppConstants;
 import com.project01.skillineserver.dto.ApiResponse;
 import com.project01.skillineserver.dto.request.ChangeEmailReq;
 import com.project01.skillineserver.dto.request.ChangePasswordReq;
-import com.project01.skillineserver.dto.request.TokenRequest;
 import com.project01.skillineserver.entity.UserEntity;
 import com.project01.skillineserver.service.AuthService;
-import com.project01.skillineserver.service.Impl.AuthorizationService;
 import com.project01.skillineserver.service.UserService;
 import com.project01.skillineserver.utils.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,9 +41,9 @@ public class UserController {
 
     @GetMapping(value = "/logout")
     @PreAuthorize("@authorizationService.isCanAccessApi()")
-    public ApiResponse<?> logout(HttpServletRequest request) throws ParseException {
+    public ApiResponse<?> logout(HttpServletRequest request, HttpServletResponse response) throws ParseException {
         String token = CookieUtil.getTokenFromCookie(AppConstants.ACCESS_TOKEN,request);
-        authService.logout(token);
+        authService.logout(token, response);
         return ApiResponse.builder()
                 .message("Logout Success!")
                 .code(200)
