@@ -106,7 +106,7 @@ public class AuthController {
     @GetMapping(value = "/csrf-token")
     public Map<String,String> getCsrfToken(CsrfToken csrfToken){
         Map<String,String> response = new HashMap<>();
-        response.put("csrf-token",csrfToken.getToken());
+        response.put("csrfToken", csrfToken.getToken());
         response.put("headerName", csrfToken.getHeaderName());
         response.put("parameterName", csrfToken.getParameterName());
         return response;

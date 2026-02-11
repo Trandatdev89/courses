@@ -199,7 +199,13 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public boolean introspect(String token, TokenType tokenType) {
+
         boolean check = false;
+
+        if (token == null) {
+            return check;
+        }
+
         try {
             securityUtil.verifyToken(token,
                     tokenType);

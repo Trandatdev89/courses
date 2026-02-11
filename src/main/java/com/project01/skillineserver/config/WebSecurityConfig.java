@@ -32,7 +32,10 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -89,11 +92,23 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, CustomJwtAuthConverter customJwtAuthConverter) throws Exception {
+    public CsrfTokenRepository csrfTokenRepository() {
+        CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        repository.setCookiePath("/");
+        repository.setCookieMaxAge(7 * 24 * 60 * 60);
+        return repository;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, CustomJwtAuthConverter customJwtAuthConverter, CsrfTokenRepository csrfTokenRepository) throws Exception {
+
         return httpSecurity
                 .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
+                        .csrfTokenRepository(csrfTokenRepository)
+                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+                        .sessionAuthenticationStrategy(new NullAuthenticatedSessionStrategy())
+                        .ignoringRequestMatchers("/auth/**"))
+                .addFilterBefore(new CsrfValidationFilter(csrfTokenRepository), CsrfFilter.class)
                 .authorizeHttpRequests(http -> http
                         .requestMatchers(HttpMethod.GET, "/product/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/category/pagination").permitAll()
@@ -105,11 +120,15 @@ public class WebSecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .oauth2ResourceServer(oauth -> oauth
                         .bearerTokenResolver(cookieBearerTokenResolver)
-                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                         .accessDeniedHandler(new JwtAccessDeniedEntryPoint())
+                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                         .jwt(config -> config
                                 .jwtAuthenticationConverter(customJwtAuthConverter)
                                 .decoder(accessTokenDecoder())))
+                .exceptionHandling(ex -> ex
+                        .accessDeniedHandler(new JwtAccessDeniedEntryPoint())
+                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
+                )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
